@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/apache-logging-log4j.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-3.0.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-beanutils-1.9.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-codec-1.10.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-collections-3.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-collections4-4.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-configuration2-2.1.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-lang-2.6.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-lang3-3.7.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-logging-1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/commons-net-2.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/core-3.0.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/curvesapi-1.04.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/excelio-3.0.0.3-SNAPSHOT.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/gson-2.2.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/gson-2.8.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/guava.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/hamcrest-core-1.3.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/junit-4.11.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/poi-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/poi-ooxml-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/poi-ooxml-schemas-3.15.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/stax-api-1.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/xmlbeans-2.6.0.jar"/>
+	<classpathentry kind="lib" path="C:/Users/DashA2/Desktop/Spindox Web application project documents/Jars/SpindoxWebApp Dependencies (1)/SpindoxWebApp Dependencies/spindox/log4j-1.2.17.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
