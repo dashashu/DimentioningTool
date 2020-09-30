@@ -80,8 +80,8 @@ public class OutputUtils_Test {
 		      public Void call() throws Exception
 		      {
 		    	// Ashutosh :BOBBOS method call
-		  		OutputBlades bbobj = NetworkPortEnclosure(clusterList, catalog, yearsOrder, inputConfig);
-		  		outputExcelManagement.createOutPutNetworkSheet(bbobj, yearsOrder, inputConfig);
+		  		//OutputBlades bbobj = NetworkPortEnclosure(clusterList, catalog, yearsOrder, inputConfig);
+		  		//outputExcelManagement.createOutPutNetworkSheet(bbobj, yearsOrder, inputConfig);
 		        return null;
 		      }
 		   };
@@ -170,19 +170,38 @@ public class OutputUtils_Test {
 					YearSummary ys = new YearSummary();
 					Integer storage = 0;
 
-					if (c.getClusterConfiguration().isHighPerformanceBladeFlag()) { // del cluster // I insert the
-																					// blades according to the cluster
-																					// settings
-
-						ys.setBladeNumber(0);
-						ys.setHpBladeNumber(entry.getValue().size());
+					if (c.getClusterConfiguration().isSynSigBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(entry.getValue().size());
+					}else if (c.getClusterConfiguration().isSynMedBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					}else if (c.getClusterConfiguration().isSynDataBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					}else if (c.getClusterConfiguration().isC7KDellStdbladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					}else if (c.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
 					} else {
-						// Ashutosh: new flag :bladeBufferPercentage
-						int bladeValue = entry.getValue().size();
-						ys.setBladeNumber(bladeValue);
-								//+ ((int) Math.ceil((inputConfig.getBladeBufferPercentage() / 100) * bladeValue)));
-						ys.setBladeNumber(entry.getValue().size());
-						ys.setHpBladeNumber(0);
+						System.out.println("No blade has been defined for the cluster " + c.getSheetLabel());
 					}
 
 					for (Blade b : entry.getValue()) // conto lo storage
@@ -227,8 +246,11 @@ public class OutputUtils_Test {
 						if (totalYs == null)
 							continue;
 
-						totalYs.setBladeNumber(totalYs.getBladeNumber() + entry.getValue().getBladeNumber());
-						totalYs.setHpBladeNumber(totalYs.getHpBladeNumber() + entry.getValue().getHpBladeNumber());
+						totalYs.setSynSigBlade(totalYs.getSynSigBlade() + entry.getValue().getSynSigBlade());
+						totalYs.setSynMedBlade(totalYs.getSynMedBlade() + entry.getValue().getSynMedBlade());
+						totalYs.setSynDataBlade(totalYs.getSynDataBlade() + entry.getValue().getSynDataBlade());
+						totalYs.setC7KDellStdblade(totalYs.getC7KDellStdblade() + entry.getValue().getC7KDellStdblade());
+						totalYs.setC7kDellHighPerfBlade(totalYs.getC7kDellHighPerfBlade() + entry.getValue().getC7kDellHighPerfBlade());
 						totalYs.setStorageTotal(totalYs.getStorageTotal() + entry.getValue().getStorageTotal());
 
 						map.put(entry.getKey(), totalYs);
@@ -255,7 +277,7 @@ public class OutputUtils_Test {
 						map.put(entry.getKey(), new SiteDetails(entry.getValue()));
 
 					sd.setClusterTotal(new HashMap<String, SiteDetails>(map));
-					sd.setHighPerformance(c.getClusterConfiguration().isHighPerformanceBladeFlag());
+					sd.setHighPerformance(c.getClusterConfiguration().isC7kDellHighPerfBladeFlag());
 					siteDetailsTableList.add(sd);
 				} else {
 					sd.addToTotals(clusterTotals);
@@ -330,12 +352,12 @@ public class OutputUtils_Test {
 				cumulativeBladeCluster.setSite(site);
 
 				String bladeType = "";
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) // per ogni cluster verifico se la
+				if (cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) // per ogni cluster verifico se la
 																					// blade è normale o HP e recupero
 																					// la descrizione
-					bladeType = catalog.getBladeHighPerformance().getComponentDescription();
+					bladeType = catalog.getC7kDellHighPerfBlade().getComponentDescription();
 				else
-					bladeType = catalog.getBlade().getComponentDescription();
+					bladeType = catalog.getC7KDellStdblade().getComponentDescription();
 
 				Map<String, List<Blade>> map = cluster.getPlacementTable().getPlacementForSite(site);
 				Map<String, Integer> mapPerYear = new HashMap<String, Integer>();
@@ -376,152 +398,152 @@ public class OutputUtils_Test {
 	 * added by Ashutosh Dash. Method is Network sheet count, Network card, SAN
 	 * ,total blade count etc.
 	 */
-	private static OutputBlades NetworkPortEnclosure(List<Cluster> clusterList, Catalog catalog,
-			Map<Integer, String> yearsOrder, InputConfiguration inputConfig) {
-
-		OutputBlades sheet = new OutputBlades();
-		List<OutputTableSpecific> deltaBladeType = new ArrayList<OutputTableSpecific>();
-		List<OutputTable> cumulativeBladeTotalsS = new ArrayList<OutputTable>();
-		List<OutputTable> cumulativeBladeTotalsH = new ArrayList<OutputTable>();
-
-		// Site-Year-blade map
-		Map<String, Map<String, Integer>> siteYearBladeMapS = new HashMap<String, Map<String, Integer>>();
-		Map<String, Map<String, Integer>> siteYearBladeMapH = new HashMap<String, Map<String, Integer>>();
-		// Site-year-enclosure map
-		Map<String, Map<String, Integer>> siteYearEnclosureMapS = new HashMap<String, Map<String, Integer>>();
-		Map<String, Map<String, Integer>> siteYearEnclosureMapH = new HashMap<String, Map<String, Integer>>();
-
-		List<BobbosCluster> resourceDetailTable = new ArrayList<BobbosCluster>();// for enclouser table data
-		List<BobbosCluster> CumulativeEnclosureTable = new ArrayList<BobbosCluster>();// for cumulative table data
-		List<BobbosCluster> DeltaEnclosureTable = new ArrayList<BobbosCluster>();// for delta table data
-
-		// MAp for storing site wise
-		Map<String, Integer> siteBladeS = new HashMap<String, Integer>();
-		Map<String, Integer> siteBladeH = new HashMap<String, Integer>();
-
-		List<BobbosCluster> cumulativeBladeClusters = new ArrayList<BobbosCluster>();
-		List<BobbosCluster> deltaBladeClusters = new ArrayList<BobbosCluster>();
-		for (Cluster cluster : clusterList) {
-			for (String site : cluster.getPlacementTable().getSite()) { 
-				
-				if(!cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
-				cumulativeBladeTotalsS = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsS, yearsOrder, cluster.isFoundation());
-				}else {
-				cumulativeBladeTotalsH = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsH, yearsOrder, cluster.isFoundation());																	
-				}
-				BobbosCluster cumulativeBladeCluster = new BobbosCluster();
-				Map<String, List<Blade>> map = cluster.getPlacementTable().getPlacementForSite(site);
-				Map<String, Integer> mapPerYear = new HashMap<String, Integer>();
-
-				for (Map.Entry<String, List<Blade>> element : map.entrySet())
-					mapPerYear.put(element.getKey(), element.getValue().size());
-				cumulativeBladeCluster.setClusterName(cluster.getSheetLabel());
-				cumulativeBladeCluster.setSite(site);
-				cumulativeBladeCluster.setValueForYears(mapPerYear);
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
-					cumulativeBladeCluster.setBladeType("high performance");
-				}else {
-					cumulativeBladeCluster.setBladeType("Standard");
-				}
-				cumulativeBladeClusters.add(cumulativeBladeCluster);
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {// HP
-					if (siteYearBladeMapH.containsKey(site)) {
-						Set<String> yearNames = siteYearBladeMapH.get(site).keySet();
-						for (String year : yearNames) {
-							mapPerYear.put(year, (siteYearBladeMapH.get(site).get(year) + mapPerYear.get(year)));
-						}
-						siteYearBladeMapH.put(site, mapPerYear);
-					} else {
-						siteYearBladeMapH.put(site, mapPerYear);
-					}
-				} else {// Standard
-					if (siteYearBladeMapS.containsKey(site)) {
-						Set<String> yearNames = siteYearBladeMapS.get(site).keySet();
-						for (String year : yearNames) {
-							mapPerYear.put(year, (siteYearBladeMapS.get(site).get(year) + mapPerYear.get(year)));
-						}
-						siteYearBladeMapS.put(site, mapPerYear);
-					} else {
-						siteYearBladeMapS.put(site, mapPerYear);
-					}
-				}
-			}
-		}//end of cluster loop
-		//delta blade for resource count
-		for (BobbosCluster bc : cumulativeBladeClusters)
-			deltaBladeClusters.add(new BobbosCluster(bc,yearsOrder));//
-		for (BobbosCluster item : deltaBladeClusters) {
-			int bladeCountyear = item.getValueForYears().values().stream().mapToInt(i -> i).sum();
-			if(item.getBladeType().equals("Standard")) {
-				siteBladeS.put(item.getSite(), bladeCountyear);
-			}else {
-				siteBladeH.put(item.getSite(), bladeCountyear);
-			}
-		}
-		// Resource details
-		List<String> siteToExclude = new ArrayList<String>();
-		for (Entry<String, Integer> item : siteBladeS.entrySet()) {
-			for (Entry<String, Integer> item1 : siteBladeH.entrySet()) {
-				if (item.getKey().equals(item1.getKey())) {
-					int totalBladeCount = (((item.getValue()) + (item1.getValue() * 2)) / 2)
-							+ ((item.getValue()) + (item1.getValue() * 2));
-					// the formula is : ( No. Blades mgmt. + No. blade serviceS + (No. blade serviced) x 2) = Total/2 = Result + Total
-					resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
-					siteToExclude.add(item1.getKey());
-				}
-			}
-		}
-		// Resource details -  for only Standard
-		siteToExclude.forEach(item -> { siteBladeS.remove(item);});
-		for (Entry<String, Integer> item : siteBladeS.entrySet()) {
-			int totalBladeCount = ((item.getValue() / 2) + (item.getValue()));
-			resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
-		}
-
-		// Resource details -  for only HP
-		siteToExclude.forEach(item -> { siteBladeH.remove(item);});
-		
-		for (Entry<String, Integer> item : siteBladeH.entrySet()) {
-			int totalBladeCount = ((item.getValue() / 2) + (item.getValue()));
-			resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
-		}
-
-		// Cumulative enclosure table - Table2
-		for (Entry<String, Map<String, Map<String, Integer>>> mapvalue : getEnclosure(catalog, siteYearBladeMapS,
-				siteYearBladeMapH, inputConfig).entrySet()) {
-
-			if (!mapvalue.equals(null)) {
-				for (Map.Entry<String, Map<String, Integer>> values1 : mapvalue.getValue().entrySet()) {
-					BobbosCluster CumulativeTable = new BobbosCluster();
-					if (mapvalue.getKey().equalsIgnoreCase("Standard")) {
-						CumulativeTable.setBladeType("Standard");// blade type
-						CumulativeTable.setSite(values1.getKey());// site
-						CumulativeTable.setValueForYears(values1.getValue());// yr-enclosuremap
-						//Site-Year-Enclosure map for port number calculation.
-						siteYearEnclosureMapS.put(values1.getKey(), values1.getValue());
-					} else if (mapvalue.getKey().equalsIgnoreCase("HP")) {
-						CumulativeTable.setBladeType("High Performance");// blade type
-						CumulativeTable.setSite(values1.getKey());// site
-						CumulativeTable.setValueForYears(values1.getValue());// yr-enclosuremap
-						//Site-Year-Enclosure map for port number calculation.
-						siteYearEnclosureMapH.put(values1.getKey(), values1.getValue());
-					}
-					CumulativeEnclosureTable.add(CumulativeTable);
-				}
-			}
-		}
-		
-
-		for (BobbosCluster bc : CumulativeEnclosureTable)
-			DeltaEnclosureTable.add(new BobbosCluster(bc, yearsOrder));//
-		
-		sheet.setTable1List(resourceDetailTable);// table 1
-		sheet.setTableD2List(CumulativeEnclosureTable);// table 2
-		sheet.setTableCumulativeD2List(DeltaEnclosureTable);// table 3
-		sheet.setTable3List(portNumber(siteYearEnclosureMapS, siteYearEnclosureMapH));// table 4
-		sheet.setDeltaBladeType(deltaBladeType);// table 4
-		return sheet;
-	}
+//	private static OutputBlades NetworkPortEnclosure(List<Cluster> clusterList, Catalog catalog,
+//			Map<Integer, String> yearsOrder, InputConfiguration inputConfig) {
+//
+//		OutputBlades sheet = new OutputBlades();
+//		List<OutputTableSpecific> deltaBladeType = new ArrayList<OutputTableSpecific>();
+//		List<OutputTable> cumulativeBladeTotalsS = new ArrayList<OutputTable>();
+//		List<OutputTable> cumulativeBladeTotalsH = new ArrayList<OutputTable>();
+//
+//		// Site-Year-blade map
+//		Map<String, Map<String, Integer>> siteYearBladeMapS = new HashMap<String, Map<String, Integer>>();
+//		Map<String, Map<String, Integer>> siteYearBladeMapH = new HashMap<String, Map<String, Integer>>();
+//		// Site-year-enclosure map
+//		Map<String, Map<String, Integer>> siteYearEnclosureMapS = new HashMap<String, Map<String, Integer>>();
+//		Map<String, Map<String, Integer>> siteYearEnclosureMapH = new HashMap<String, Map<String, Integer>>();
+//
+//		List<BobbosCluster> resourceDetailTable = new ArrayList<BobbosCluster>();// for enclouser table data
+//		List<BobbosCluster> CumulativeEnclosureTable = new ArrayList<BobbosCluster>();// for cumulative table data
+//		List<BobbosCluster> DeltaEnclosureTable = new ArrayList<BobbosCluster>();// for delta table data
+//
+//		// MAp for storing site wise
+//		Map<String, Integer> siteBladeS = new HashMap<String, Integer>();
+//		Map<String, Integer> siteBladeH = new HashMap<String, Integer>();
+//
+//		List<BobbosCluster> cumulativeBladeClusters = new ArrayList<BobbosCluster>();
+//		List<BobbosCluster> deltaBladeClusters = new ArrayList<BobbosCluster>();
+//		for (Cluster cluster : clusterList) {
+//			for (String site : cluster.getPlacementTable().getSite()) { 
+//				
+//				if(!cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
+//				cumulativeBladeTotalsS = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsS, yearsOrder, cluster.isFoundation());
+//				}else {
+//				cumulativeBladeTotalsH = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsH, yearsOrder, cluster.isFoundation());																	
+//				}
+//				BobbosCluster cumulativeBladeCluster = new BobbosCluster();
+//				Map<String, List<Blade>> map = cluster.getPlacementTable().getPlacementForSite(site);
+//				Map<String, Integer> mapPerYear = new HashMap<String, Integer>();
+//
+//				for (Map.Entry<String, List<Blade>> element : map.entrySet())
+//					mapPerYear.put(element.getKey(), element.getValue().size());
+//				cumulativeBladeCluster.setClusterName(cluster.getSheetLabel());
+//				cumulativeBladeCluster.setSite(site);
+//				cumulativeBladeCluster.setValueForYears(mapPerYear);
+//				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
+//					cumulativeBladeCluster.setBladeType("high performance");
+//				}else {
+//					cumulativeBladeCluster.setBladeType("Standard");
+//				}
+//				cumulativeBladeClusters.add(cumulativeBladeCluster);
+//				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {// HP
+//					if (siteYearBladeMapH.containsKey(site)) {
+//						Set<String> yearNames = siteYearBladeMapH.get(site).keySet();
+//						for (String year : yearNames) {
+//							mapPerYear.put(year, (siteYearBladeMapH.get(site).get(year) + mapPerYear.get(year)));
+//						}
+//						siteYearBladeMapH.put(site, mapPerYear);
+//					} else {
+//						siteYearBladeMapH.put(site, mapPerYear);
+//					}
+//				} else {// Standard
+//					if (siteYearBladeMapS.containsKey(site)) {
+//						Set<String> yearNames = siteYearBladeMapS.get(site).keySet();
+//						for (String year : yearNames) {
+//							mapPerYear.put(year, (siteYearBladeMapS.get(site).get(year) + mapPerYear.get(year)));
+//						}
+//						siteYearBladeMapS.put(site, mapPerYear);
+//					} else {
+//						siteYearBladeMapS.put(site, mapPerYear);
+//					}
+//				}
+//			}
+//		}//end of cluster loop
+//		//delta blade for resource count
+//		for (BobbosCluster bc : cumulativeBladeClusters)
+//			deltaBladeClusters.add(new BobbosCluster(bc,yearsOrder));//
+//		for (BobbosCluster item : deltaBladeClusters) {
+//			int bladeCountyear = item.getValueForYears().values().stream().mapToInt(i -> i).sum();
+//			if(item.getBladeType().equals("Standard")) {
+//				siteBladeS.put(item.getSite(), bladeCountyear);
+//			}else {
+//				siteBladeH.put(item.getSite(), bladeCountyear);
+//			}
+//		}
+//		// Resource details
+//		List<String> siteToExclude = new ArrayList<String>();
+//		for (Entry<String, Integer> item : siteBladeS.entrySet()) {
+//			for (Entry<String, Integer> item1 : siteBladeH.entrySet()) {
+//				if (item.getKey().equals(item1.getKey())) {
+//					int totalBladeCount = (((item.getValue()) + (item1.getValue() * 2)) / 2)
+//							+ ((item.getValue()) + (item1.getValue() * 2));
+//					// the formula is : ( No. Blades mgmt. + No. blade serviceS + (No. blade serviced) x 2) = Total/2 = Result + Total
+//					resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
+//					siteToExclude.add(item1.getKey());
+//				}
+//			}
+//		}
+//		// Resource details -  for only Standard
+//		siteToExclude.forEach(item -> { siteBladeS.remove(item);});
+//		for (Entry<String, Integer> item : siteBladeS.entrySet()) {
+//			int totalBladeCount = ((item.getValue() / 2) + (item.getValue()));
+//			resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
+//		}
+//
+//		// Resource details -  for only HP
+//		siteToExclude.forEach(item -> { siteBladeH.remove(item);});
+//		
+//		for (Entry<String, Integer> item : siteBladeH.entrySet()) {
+//			int totalBladeCount = ((item.getValue() / 2) + (item.getValue()));
+//			resourceDetailTable.add(modelName(totalBladeCount, catalog, item.getKey(), inputConfig));// call the model name method and set the List()
+//		}
+//
+//		// Cumulative enclosure table - Table2
+//		for (Entry<String, Map<String, Map<String, Integer>>> mapvalue : getEnclosure(catalog, siteYearBladeMapS,
+//				siteYearBladeMapH, inputConfig).entrySet()) {
+//
+//			if (!mapvalue.equals(null)) {
+//				for (Map.Entry<String, Map<String, Integer>> values1 : mapvalue.getValue().entrySet()) {
+//					BobbosCluster CumulativeTable = new BobbosCluster();
+//					if (mapvalue.getKey().equalsIgnoreCase("Standard")) {
+//						CumulativeTable.setBladeType("Standard");// blade type
+//						CumulativeTable.setSite(values1.getKey());// site
+//						CumulativeTable.setValueForYears(values1.getValue());// yr-enclosuremap
+//						//Site-Year-Enclosure map for port number calculation.
+//						siteYearEnclosureMapS.put(values1.getKey(), values1.getValue());
+//					} else if (mapvalue.getKey().equalsIgnoreCase("HP")) {
+//						CumulativeTable.setBladeType("High Performance");// blade type
+//						CumulativeTable.setSite(values1.getKey());// site
+//						CumulativeTable.setValueForYears(values1.getValue());// yr-enclosuremap
+//						//Site-Year-Enclosure map for port number calculation.
+//						siteYearEnclosureMapH.put(values1.getKey(), values1.getValue());
+//					}
+//					CumulativeEnclosureTable.add(CumulativeTable);
+//				}
+//			}
+//		}
+//		
+//
+//		for (BobbosCluster bc : CumulativeEnclosureTable)
+//			DeltaEnclosureTable.add(new BobbosCluster(bc, yearsOrder));//
+//		
+//		sheet.setTable1List(resourceDetailTable);// table 1
+//		sheet.setTableD2List(CumulativeEnclosureTable);// table 2
+//		sheet.setTableCumulativeD2List(DeltaEnclosureTable);// table 3
+//		sheet.setTable3List(portNumber(siteYearEnclosureMapS, siteYearEnclosureMapH));// table 4
+//		sheet.setDeltaBladeType(deltaBladeType);// table 4
+//		return sheet;
+//	}
 
 
 	/**
@@ -685,9 +707,9 @@ public class OutputUtils_Test {
 		int enclouserf = 0;
 		int foundationBlades = 7;
 
-		if (catalog.getEnclosure().getVendor().contains("HP")) {
+		if (catalog.getC7KDellStdEnclosure().getVendor().contains("HP")) {
 			if (bladeType.equalsIgnoreCase("Standard")) {
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));// number of enclosure
@@ -702,7 +724,7 @@ public class OutputUtils_Test {
 					} else
 						enclouser = enclouserf;// enclosure count
 
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (12));
@@ -719,7 +741,7 @@ public class OutputUtils_Test {
 						enclouser = enclouserf;// enclosure count
 				}
 			} else {// highperformance
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (13));// 2.5 = 3
@@ -733,7 +755,7 @@ public class OutputUtils_Test {
 						enclouser = (enclouserf + 1);
 					} else
 						enclouser = enclouserf;// enclosure count
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (12));// 2.5 = 3
@@ -749,9 +771,9 @@ public class OutputUtils_Test {
 						enclouser = enclouserf;// enclosure count
 				}
 			}
-		} else if (catalog.getEnclosure().getVendor().contains("DELL")) {
+		} else if (catalog.getC7KDellStdEnclosure().getVendor().contains("DELL")) {
 			if (bladeType.equalsIgnoreCase("Standard")) {
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (16));// number of enclosure
@@ -766,7 +788,7 @@ public class OutputUtils_Test {
 					} else
 						enclouser = enclouserf;// enclosure count
 
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));
@@ -783,7 +805,7 @@ public class OutputUtils_Test {
 						enclouser = enclouserf;// enclosure count
 				}
 			} else {// highperformance
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (16));// 2.5 = 3
@@ -797,7 +819,7 @@ public class OutputUtils_Test {
 						enclouser = (enclouserf + 1);
 					} else
 						enclouser = enclouserf;// enclosure count
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));// 2.5 = 3
@@ -813,7 +835,7 @@ public class OutputUtils_Test {
 						enclouser = enclouserf;// enclosure count
 				}
 			}
-		} else if (catalog.getEnclosure().getVendor().contains("HUAWEI")) {
+		} else if (catalog.getC7KDellStdEnclosure().getVendor().contains("HUAWEI")) {
 			if (inputConfig.isFoundationFlag()) {
 				foundationEnlosure = 1;
 				enclouserf = ((bladeCountyear + foundationBlades) / (14));// 2.5 = 3
@@ -906,10 +928,10 @@ public class OutputUtils_Test {
 					.filter(cc -> cc.getSheetLabel().equals(cluster.getSheetLabel())).findFirst().get();
 
 			Compute catalogBlade = null;
-			if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag())
-				catalogBlade = catalog.getBladeHighPerformance();
+			if (cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag())
+				catalogBlade = catalog.getC7kDellHighPerfBlade();
 			else
-				catalogBlade = catalog.getBlade();
+				catalogBlade = catalog.getC7KDellStdblade();
 
 			for (PlacementResult pr : cluster.getPlacementTable().getPlacementResultList()) {
 				TetrisYear tetrisYear = new TetrisYear();
@@ -1014,8 +1036,8 @@ public class OutputUtils_Test {
 		storageElements.add(catalog.getDriveEnclosureDisk().getComponentId());
 
 		Set<String> enclosureElements = new HashSet<String>();
-		enclosureElements.add(catalog.getEnclosure().getComponentId());
-		enclosureElements.add(catalog.getEnclosureHighPerformance().getComponentId());
+		enclosureElements.add(catalog.getC7KDellStdEnclosure().getComponentId());
+		enclosureElements.add(catalog.getC7kDellHighPerfEnclosure().getComponentId());
 
 		for (Map.Entry<String, List<EstimationLine>> entry : estimation.getEstimationTable().entrySet()) {
 			for (EstimationLine el : entry.getValue()) {

@@ -581,11 +581,32 @@ public class RulesUtil {
 	                    Compute blade;
 	
 	                    ClusterConfiguration clusterConfiguration = tmpClusterConfigurationList.get(0);
-	                    if (!clusterConfiguration.isHighPerformanceBladeFlag()) {
-	                        blade = catalog.getBlade();
-	                    } else {
-	                        blade = catalog.getBladeHighPerformance();
+	                    //Synergy changes
+	                    int oneFlagCheck = 0;
+	                    if (clusterConfiguration.isSynSigBladeFlag()) oneFlagCheck = +1;
+	                    if (clusterConfiguration.isSynMedBladeFlag()) oneFlagCheck = +1;
+	                    if (clusterConfiguration.isSynDataBladeFlag()) oneFlagCheck = +1;
+	                    if (clusterConfiguration.isC7KDellStdbladeFlag()) oneFlagCheck = +1;
+	                    if (clusterConfiguration.isC7kDellHighPerfBladeFlag()) oneFlagCheck = +1;
+	                    
+	                    if (oneFlagCheck>1) {
+	                    	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ clusterConfiguration.getSheetLabel());
+	                    }else {
+	                    if (clusterConfiguration.isSynSigBladeFlag()) {
+	                    	blade = catalog.getSynSigBlade();
+	                    }else if (clusterConfiguration.isSynMedBladeFlag()) {
+	                        blade = catalog.getSynMedBlade();
+	                    } else if(clusterConfiguration.isSynDataBladeFlag()){
+	                    	blade = catalog.getSynDataBlade();
+	                    }else if (clusterConfiguration.isC7KDellStdbladeFlag()) {
+	                    	blade = catalog.getC7KDellStdblade();
+	                    }else if (clusterConfiguration.isC7kDellHighPerfBladeFlag()){
+	                        blade = catalog.getC7kDellHighPerfBlade();
+	                    }else {
+	                    	throw new UnexpectedSituationOccurredException("No Blade choose for the cluster"+ " - "+clusterConfiguration.getSheetLabel());
 	                    }
+	                    }
+	                    
 	                    BladeFactory bladeFactory = new BladeFactory(blade, clusterConfiguration, inputConfig.getEsxiCores(), inputConfig.getTxrxCores());	                    
 
 	                    if(tempCluster!=null) {
@@ -601,7 +622,7 @@ public class RulesUtil {
 	                        throw new MultipleClusterConfigurationDefinedIntoInputConfigJsonException(clusterForGroup);
 	                    }
 	                }
-				} else { //Se nessuna VM nel gruppo ha restituito success.
+				} else { //If no VMs in the group returned success.
 					for(ClusterRuleApplicationResult crar:groupRuleResult) {
 						final String clusterForGroup2 = crar.getClusterName();
 						
@@ -611,16 +632,34 @@ public class RulesUtil {
 						
 						List<ClusterConfiguration> tmpClusterConfigurationList = inputConfig.getClusterConfiguration().stream().filter(clusterConfiguration -> clusterConfiguration.getSheetLabel().equalsIgnoreCase(clusterForGroup2)).collect(Collectors.toList());
 						
-						if (tmpClusterConfigurationList.size() == 1) { //Se non trovo una configuration per questo cluster sollevo errore.
+						if (tmpClusterConfigurationList.size() == 1) { //If I don't find a configuration for this cluster I raise an error
 		                    Compute blade;
 
 		                    ClusterConfiguration clusterConfiguration = tmpClusterConfigurationList.get(0);
-		                    if (!clusterConfiguration.isHighPerformanceBladeFlag()) {
-		                        blade = catalog.getBlade();
-		                    } else {
-		                        blade = catalog.getBladeHighPerformance();
+		                    //Synergy changes
+		                    int oneFlagCheck = 0;
+		                    if (clusterConfiguration.isSynSigBladeFlag()) {
+		                    	blade = catalog.getSynSigBlade();
+		                    	oneFlagCheck = +1;
+		                    }else if (clusterConfiguration.isSynMedBladeFlag()) {
+		                        blade = catalog.getSynMedBlade();
+		                        oneFlagCheck = +1;
+		                    } else if(clusterConfiguration.isSynDataBladeFlag()){
+		                    	blade = catalog.getSynDataBlade();
+		                    	oneFlagCheck = +1;
+		                    }else if (clusterConfiguration.isC7KDellStdbladeFlag()) {
+		                    	blade = catalog.getC7KDellStdblade();
+		                    	oneFlagCheck = +1;
+		                    }else if (clusterConfiguration.isC7kDellHighPerfBladeFlag()){
+		                        blade = catalog.getC7kDellHighPerfBlade();
+		                        oneFlagCheck = +1;
+		                    }else {
+		                    	throw new UnexpectedSituationOccurredException("No Blade choose for the cluster"+ " - "+clusterConfiguration.getSheetLabel());
 		                    }
-		                    BladeFactory bladeFactory = new BladeFactory(blade, clusterConfiguration, inputConfig.getEsxiCores(), inputConfig.getTxrxCores());	                    
+		                    if (oneFlagCheck>1) {
+		                    	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ clusterConfiguration.getSheetLabel());
+		                    }
+		                    	BladeFactory bladeFactory = new BladeFactory(blade, clusterConfiguration, inputConfig.getEsxiCores(), inputConfig.getTxrxCores());	                    
 
 		                    if(tempCluster!=null) {
 		                    	List<VBom> tempList = tempCluster.getVbom();
@@ -649,11 +688,18 @@ public class RulesUtil {
 			String foundationLabel = ConfigurationManagement.getVbomConfiguration().getString("foundationWorkloadType");
 			ClusterConfiguration foundationConfiguration = inputConfig.getClusterConfiguration().stream().filter(clusterConfiguration -> clusterConfiguration.getSheetLabel().equalsIgnoreCase(foundationLabel)).findFirst().get();
 			Compute blade = new Compute();
-			if (!foundationConfiguration.isHighPerformanceBladeFlag()) {
-                blade = catalog.getBlade();
+			//synergy changes
+			if (!foundationConfiguration.isC7kDellHighPerfBladeFlag()) {
+                blade = catalog.getC7KDellStdblade();
             } else {
-                blade = catalog.getBladeHighPerformance();
+                blade = catalog.getC7kDellHighPerfBlade();
             }
+//			
+//			if (!foundationConfiguration.isHighPerformanceBladeFlag()) {
+//                blade = catalog.getBlade();
+//            } else {
+//                blade = catalog.getBladeHighPerformance();
+//            }
 			BladeFactory bladeFactory = new BladeFactory(blade, foundationConfiguration, inputConfig.getEsxiCores(), inputConfig.getTxrxCores());
 			
 			Cluster foundationCluster = new Cluster(foundationLabel, foundationGroup, bladeFactory, inputConfig);

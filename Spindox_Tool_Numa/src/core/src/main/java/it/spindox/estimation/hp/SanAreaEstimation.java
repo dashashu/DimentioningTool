@@ -149,8 +149,8 @@ public class SanAreaEstimation extends ComponentEstimation {
 
         //EVALUATE THE NUMBER OF THREEPAR EXPANSION TO BUY FOR FOUNDATION
 //        List<EstimationLine> enclosureList = estimation.getEstimationTable().get(site).stream().filter(estimationLine -> estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.ENCLOSURE)).collect(Collectors.toList());
-        String normalEnclosureCode = estimation.getCatalog().getEnclosure().getComponentId();
-        String hpEnclosureCode = estimation.getCatalog().getEnclosureHighPerformance().getComponentId();
+        String normalEnclosureCode = estimation.getCatalog().getC7KDellStdEnclosure().getComponentId();
+        String hpEnclosureCode = estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentId();
         
         EstimationLine threeParExpansionEstimationLine = new EstimationLine(threeParExpansion, threeParExpansion.getComponentDescription());
         
@@ -200,8 +200,8 @@ public class SanAreaEstimation extends ComponentEstimation {
             ThreePar threePar = (ThreePar) estimation.getCatalog().getThreePar();
 
             //EVALUATE THE NUMBER OF THREEPAR EXPANSION TO BUY FOR INITIATIVE
-            String normalEnclosureCode = estimation.getCatalog().getEnclosure().getComponentId();
-            String hpEnclosureCode = estimation.getCatalog().getEnclosureHighPerformance().getComponentId();
+            String normalEnclosureCode = estimation.getCatalog().getC7KDellStdEnclosure().getComponentId();
+            String hpEnclosureCode = estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentId();
 
             List<EstimationLine> temp = estimation.getEstimationTable().get(site).stream()
                     .filter(estimationLine -> estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.ENCLOSURE))
@@ -283,12 +283,12 @@ public class SanAreaEstimation extends ComponentEstimation {
     }
 
     private void estimateDiskAndDriveEnclosureDiskQuantityForInitiative(String site) throws UnexpectedSituationOccurredException {
-        //Carico i pezzi da catalog
+        //load from the catalog
         ThreePar threePar = (ThreePar) estimation.getCatalog().getThreePar();
         Disk disk = (Disk) estimation.getCatalog().getDisk();
         DriveEnclosureDisk driveEnclosureDisk = (DriveEnclosureDisk) estimation.getCatalog().getDriveEnclosureDisk();
 
-        //Recupero la disk estimation già caricata, se non c'è ne metto una nuova
+        //recover the disk estimation already loaded, if not there I put a new one
         Optional<EstimationLine> first = estimation.getEstimationTable().get(site).stream().filter(estimationLine ->
                 estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.DISK)
         ).findFirst();

@@ -9,7 +9,13 @@ public class ClusterConfiguration {
     Double cpuOverProvisioning;
     Double ramOverProvisioning;
     Double storageReservation;
-    boolean highPerformanceBladeFlag;
+    //Synergy Changes
+    boolean SynSigBladeFlag;
+    boolean SynMedBladeFlag;
+    boolean SynDataBladeFlag;
+    boolean c7KDellStdbladeFlag;
+    boolean c7kDellHighPerfBladeFlag;
+    
     boolean numaFlag;
     Double maxThroughputPerBladeOverprovisioning;
     Double maxRunningIOPSPerBladeOverprovisioning;
@@ -34,14 +40,21 @@ public class ClusterConfiguration {
     }
 
     public ClusterConfiguration(String sheetLabel, Double cpuOverProvisioning, Double ramOverProvisioning, Double storageReservation,
-                                boolean highPerformanceBladeFlag, boolean numaFlag, Double maxThroughputPerBladeOverprovisioning, Double maxRunningIOPSPerBladeOverprovisioning,
+    		boolean SynSigBladeFlag,boolean SynMedBladeFlag, boolean SynDataBladeFlag, boolean c7KDellStdbladeFlag, boolean c7kDellHighPerfBladeFlag,
+                                boolean numaFlag, Double maxThroughputPerBladeOverprovisioning, Double maxRunningIOPSPerBladeOverprovisioning,
                                 boolean esxi, int esxi_core_blade, int esxi_core_socket_0, int esxi_core_socket_1, int esxi_mem_blade, int esxi_mem_socket_0, int esxi_mem_socket_1, boolean nsx, int nsx_core_blade,int nsx_core_socket_0,
                                 int nsx_core_socket_1, int nsx_mem_blade, int nsx_mem_socket_0, int nsx_mem_socket_1) {
         this.sheetLabel = sheetLabel;
         this.cpuOverProvisioning = cpuOverProvisioning;
         this.ramOverProvisioning = ramOverProvisioning;
         this.storageReservation = storageReservation;
-        this.highPerformanceBladeFlag = highPerformanceBladeFlag;
+        
+        this.SynSigBladeFlag = SynSigBladeFlag;
+        this.SynMedBladeFlag = SynMedBladeFlag;
+        this.SynDataBladeFlag = SynDataBladeFlag;
+        this.c7KDellStdbladeFlag = c7KDellStdbladeFlag;
+        this.c7kDellHighPerfBladeFlag = c7kDellHighPerfBladeFlag;
+        
         this.numaFlag = numaFlag;
         this.maxThroughputPerBladeOverprovisioning = maxThroughputPerBladeOverprovisioning;
         this.maxRunningIOPSPerBladeOverprovisioning = maxRunningIOPSPerBladeOverprovisioning;
@@ -93,14 +106,6 @@ public class ClusterConfiguration {
         this.storageReservation = storageReservation;
     }
 
-    public boolean isHighPerformanceBladeFlag() {
-        return highPerformanceBladeFlag;
-    }
-
-    public void setHighPerformanceBladeFlag(boolean highPerformanceBladeFlag) {
-        this.highPerformanceBladeFlag = highPerformanceBladeFlag;
-    }
-
     public boolean isNumaFlag() {
         return numaFlag;
     }
@@ -131,16 +136,23 @@ public class ClusterConfiguration {
         cpuOverProvisioning = 1.0;
         ramOverProvisioning = 1.0;
         storageReservation = 1.0;
-        highPerformanceBladeFlag = false;
+        
+        SynSigBladeFlag = false;
+        SynMedBladeFlag = true;
+        SynDataBladeFlag = false;
+        c7KDellStdbladeFlag = false;
+        c7kDellHighPerfBladeFlag = false;
+                
+        
         numaFlag = false;
-        esxi= true;
+        esxi= false;
 		esxi_core_blade= 0;
 		esxi_core_socket_0= 0; 
 		esxi_core_socket_1= 0;
 		esxi_mem_blade= 0;
 		esxi_mem_socket_0= 0; 
 		esxi_mem_socket_1= 0;
-		nsx= true;
+		nsx= false;
 		nsx_core_blade= 0;
 		nsx_core_socket_0= 0; 
 		nsx_core_socket_1=  0;
@@ -259,6 +271,45 @@ public class ClusterConfiguration {
 
 	public void setNsx_mem_socket_1(int nsx_mem_socket_1) {
 		this.nsx_mem_socket_1 = nsx_mem_socket_1;
+	}
+	public boolean isSynSigBladeFlag() {
+		return SynSigBladeFlag;
+	}
+
+	public void setSynSigBladeFlag(boolean SynSigBladeFlag) {
+		this.SynSigBladeFlag = SynSigBladeFlag;
+	}
+
+	public boolean isSynMedBladeFlag() {
+		return SynMedBladeFlag;
+	}
+
+	public void setSynMedBladeFlag(boolean synMedBladeFlag) {
+		SynMedBladeFlag = synMedBladeFlag;
+	}
+
+	public boolean isSynDataBladeFlag() {
+		return SynDataBladeFlag;
+	}
+
+	public void setSynDataBladeFlag(boolean synDataBladeFlag) {
+		SynDataBladeFlag = synDataBladeFlag;
+	}
+
+	public boolean isC7KDellStdbladeFlag() {
+		return c7KDellStdbladeFlag;
+	}
+
+	public void setC7KDellStdbladeFlag(boolean c7kDellStdbladeFlag) {
+		c7KDellStdbladeFlag = c7kDellStdbladeFlag;
+	}
+
+	public boolean isC7kDellHighPerfBladeFlag() {
+		return c7kDellHighPerfBladeFlag;
+	}
+
+	public void setC7kDellHighPerfBladeFlag(boolean c7kDellHighPerfBladeFlag) {
+		this.c7kDellHighPerfBladeFlag = c7kDellHighPerfBladeFlag;
 	}
 
 

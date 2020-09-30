@@ -50,9 +50,9 @@ public class SiteDetailsTable {
 			
 			Compute blade = null;
 			if(this.highPerformance)
-				blade = catalog.getBladeHighPerformance();
+				blade = catalog.getC7kDellHighPerfBlade();
 			else
-				blade = catalog.getBlade();
+				blade = catalog.getC7KDellStdblade();
 			
 			bladeLimit.setCpu(blade.getNumberOfCores() * blade.getNumberOfSockets());
 			bladeLimit.setMem(new Double(blade.getRamInGb()));

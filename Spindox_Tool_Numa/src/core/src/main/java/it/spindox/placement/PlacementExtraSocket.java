@@ -137,16 +137,19 @@ public class PlacementExtraSocket extends Placement {
         boolean zero = false;
         Double totalCores = nwGroup.getCore();
         //Ashutosh Numa blade check
-        if(blade.getNumaBlade()=='Y') {//if it is a numa VM
-        	if(((blade.getSocketList().get(0).getEffectiveCore()).equals(blade.getSocketList().get(0).getCoreAvailable())) 
-        		|| (blade.getSocketList().get(1).getEffectiveCore()).equals(blade.getSocketList().get(1).getCoreAvailable())){
-        		//means one socket is not in use
-        			return true;
-        		}else
-        			return false;
-        	}
+        if(nwGroup.getVmList().stream().anyMatch(vm -> vm.isNumaflag())) {	
+        for(VirtualMachine vm: nwGroup.getVmList()) {      
+        	if((Double.compare((blade.getSocketList().get(0).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(0).getRam()),(vm.getRam()))>=0) )
+        	|| (Double.compare((blade.getSocketList().get(1).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(1).getRam()),(vm.getRam()))>=0))){ 
         	
-        	
+        		return true;
+        	}else {
+        		logger.error(" Numa VM cannot be consider for placement for the VM " + nwGroup.getVmList().get(0).getVmName());
+        		System.exit(0);
+        		return false;
+        		
+        	}   	
+        }}
          else {
         for (VirtualMachine vm : nwGroup.getVmList()) {
             if (vm.getHighThroughputCore() == 0)

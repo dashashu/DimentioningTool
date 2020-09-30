@@ -39,13 +39,28 @@ public class BladeEstimation extends ComponentEstimation {
             Set<String> yearServiceCluster = placementCluster.keySet();
 
             EstimationLine estimationLine;
-
-            if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
-                estimationLine = new EstimationLine(estimation.getCatalog().getBladeHighPerformance(), estimation.getCatalog().getBladeHighPerformance().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
-            } else {
-                estimationLine = new EstimationLine(estimation.getCatalog().getBlade(), estimation.getCatalog().getBlade().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
+            int oneFlagCheck = 0;
+            if (cluster.getClusterConfiguration().isSynSigBladeFlag()) {
+            //synergy changes
+            	estimationLine = new EstimationLine(estimation.getCatalog().getSynSigBlade(), estimation.getCatalog().getSynSigBlade().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
+            		oneFlagCheck = +1;
+            }else if (cluster.getClusterConfiguration().isSynMedBladeFlag()) {
+                estimationLine = new EstimationLine(estimation.getCatalog().getSynMedBlade(), estimation.getCatalog().getSynMedBlade().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
+                oneFlagCheck = +1;
+            } else if(cluster.getClusterConfiguration().isSynDataBladeFlag()){
+            	estimationLine = new EstimationLine(estimation.getCatalog().getSynDataBlade(), estimation.getCatalog().getSynDataBlade().getComponentDescription()+ " for Cluster " + cluster.getSheetLabel());
+            	oneFlagCheck = +1;
+            }else if (cluster.getClusterConfiguration().isC7KDellStdbladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getC7KDellStdblade(),estimation.getCatalog().getC7KDellStdblade().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
+            	oneFlagCheck = +1;
+            }else if (cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getC7kDellHighPerfBlade(), estimation.getCatalog().getC7kDellHighPerfBlade().getComponentDescription() + " for Cluster " + cluster.getSheetLabel());
+            	oneFlagCheck = +1;
+            }else {
+            	throw new UnexpectedSituationOccurredException("No Blade choose for the cluster"+cluster.getSheetLabel()+ " - "+site);
             }
-
+            if (oneFlagCheck>1) 
+            	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ cluster.getSheetLabel());
             estimationLine.getEstimationLineDetail().addAll(getEstimationLineDetailForSinglePlacementAndYear(yearServiceCluster, placementCluster));
             estimation.getEstimationTable().get(site).add(estimationLine);
         }
@@ -79,14 +94,32 @@ public class BladeEstimation extends ComponentEstimation {
                     numberOfBladeToBuy = blades.size();
                 }
             }
-
-            if (foundationCluster.getClusterConfiguration().isHighPerformanceBladeFlag())
-                estimationLine = new EstimationLine(estimation.getCatalog().getBlade(), estimation.getCatalog().getBladeHighPerformance().getComponentDescription());
-            else
-                estimationLine = new EstimationLine(estimation.getCatalog().getBlade(), estimation.getCatalog().getBlade().getComponentDescription());
+            //Synergy changes
+            int oneFlagCheck = 0;
+            if (foundationCluster.getClusterConfiguration().isSynSigBladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getSynSigBlade(), estimation.getCatalog().getSynSigBlade().getComponentDescription());
+            	oneFlagCheck = +1;
+            }else if (foundationCluster.getClusterConfiguration().isSynMedBladeFlag()) {
+                estimationLine = new EstimationLine(estimation.getCatalog().getSynMedBlade(), estimation.getCatalog().getSynMedBlade().getComponentDescription());
+                oneFlagCheck = +1;
+            }else if (foundationCluster.getClusterConfiguration().isSynDataBladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getSynDataBlade(),estimation.getCatalog().getSynDataBlade().getComponentDescription());
+            	oneFlagCheck = +1;
+            }else if (foundationCluster.getClusterConfiguration().isC7KDellStdbladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getC7KDellStdblade(), estimation.getCatalog().getC7KDellStdblade().getComponentDescription());
+            	oneFlagCheck = +1;
+            }else if (foundationCluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
+            	estimationLine = new EstimationLine(estimation.getCatalog().getC7kDellHighPerfBlade(), estimation.getCatalog().getC7kDellHighPerfBlade().getComponentDescription());
+            	oneFlagCheck = +1;
+            }else {
+            	throw new UnexpectedSituationOccurredException("No Blade choose for the cluster"+ " - "+site);
+            }
+            if (oneFlagCheck>1) 
+            	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ foundationCluster.getClusterConfiguration().getSheetLabel());
+                
         } else {
-            numberOfBladeToBuy = estimation.getCatalog().getBlade().getFoundationDefaultValue();
-            estimationLine = new EstimationLine(estimation.getCatalog().getBlade(), estimation.getCatalog().getBlade().getComponentDescription());
+            numberOfBladeToBuy = estimation.getCatalog().getC7KDellStdblade().getFoundationDefaultValue();
+            estimationLine = new EstimationLine(estimation.getCatalog().getC7KDellStdblade(), estimation.getCatalog().getC7KDellStdblade().getComponentDescription());
         }
 
 

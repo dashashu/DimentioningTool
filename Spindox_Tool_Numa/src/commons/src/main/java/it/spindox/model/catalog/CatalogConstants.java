@@ -9,9 +9,25 @@ public class CatalogConstants {
 
     //Component names
     public static final String BLADE = "Blade";
-    public static final String HIGH_PERFORMANCE_BLADE = "High Performance Blade";
+    
+    public static final String SYN_SIG_BLADE = "Synergy Signaling Blade";
+    public static final String SYN_MED_BLADE = "Synergy Media Blade";
+    public static final String SYN_DATA_BLADE = "Synergy Data Blade";
+    public static final String C7K_STD_BLADE = "C7K and Dell Standard Blade";
+    public static final String C7K_HIGH_BLADE = "C7K and Dell High Performance Blade";
+    
+    public static final String SYN_SIG_ENCLOSURE = "Synergy Signaling Enclosure";
+    public static final String SYN_MED_ENCLOSURE = "Synergy Media Enclosure";
+    public static final String SYN_DATA_ENCLOSURE = "Synergy Data Enclosure";
+    public static final String C7K_STD_ENCLOSURE = "C7K and Dell Standard Enclosure";
+    public static final String C7K_HIGH_ENCLOSURE = "C7K and Dell High Performance Enclosure";
+    
+    //public static final String HIGH_PERFORMANCE_BLADE = "High Performance Blade";
+    
     public static final String ENCLOSURE = "Enclosure";
     public static final String HIGH_PERFORMANCE_ENCLOSURE = "High Performance Enclosure";
+    //Synergy changes
+    
     public static final String THREEPAR = "3PAR";
     public static final String THREEPAR_EXPANSION = "3PAR Expansion";
     public static final String DISK = "Disk";

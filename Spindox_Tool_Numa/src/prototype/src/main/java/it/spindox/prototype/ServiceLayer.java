@@ -59,9 +59,10 @@ public class ServiceLayer {
     public ServiceLayer( File file,File file2) throws VfException {
         this();
 
-       
         fillInputConfigFile(file);
         fillRulesFile(file2);
+//        loadCatalog();
+//      	pickFromCatalog();
     }
 
     public ServiceLayer() {
@@ -138,14 +139,35 @@ public class ServiceLayer {
 
                     List<ClusterConfiguration> tmpClusterConfigurationList = inputConfig.getClusterConfiguration().stream().filter(clusterConfiguration -> clusterConfiguration.getSheetLabel().equalsIgnoreCase(clusterLabel)).collect(Collectors.toList());
                     if (tmpClusterConfigurationList.size() == 1) {
-                        Compute blade;
-
+                        Compute blade = null;
                         ClusterConfiguration clusterConfiguration = tmpClusterConfigurationList.get(0);
-                        if (!clusterConfiguration.isHighPerformanceBladeFlag()) {
-                            blade = catalog.getBlade();
-                        } else {
-                            blade = catalog.getBladeHighPerformance();
+                        int oneFlagCheck = 0;
+	                    if (clusterConfiguration.isSynSigBladeFlag()) oneFlagCheck++;
+	                    if (clusterConfiguration.isSynMedBladeFlag()) oneFlagCheck++;
+	                    if (clusterConfiguration.isSynDataBladeFlag()) oneFlagCheck++;
+	                    if (clusterConfiguration.isC7KDellStdbladeFlag()) oneFlagCheck++;
+	                    if (clusterConfiguration.isC7kDellHighPerfBladeFlag()) oneFlagCheck++;
+	                    
+	                    if (oneFlagCheck>1) {
+	                    	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ clusterConfiguration.getSheetLabel());
+	                    }else {
+                        
+                        if (clusterConfiguration.isSynSigBladeFlag()) {
+                        	blade = catalog.getSynSigBlade();
+                        }else if (clusterConfiguration.isSynMedBladeFlag()) {
+                            blade = catalog.getSynMedBlade();
+                        }else if (clusterConfiguration.isSynDataBladeFlag()) {
+                        	blade = catalog.getSynDataBlade();
+                        }else if (clusterConfiguration.isC7KDellStdbladeFlag()) {
+                        	blade = catalog.getC7KDellStdblade();
+                        }else if (clusterConfiguration.isC7kDellHighPerfBladeFlag()){
+                            blade = catalog.getC7kDellHighPerfBlade();
+                        }else {
+                        	logger.error("Blade type is not configured for the Cluster - "+clusterLabel);
                         }
+	                    }
+//                        if (oneFlagCheck>1) 
+//                        	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ clusterConfiguration.getSheetLabel());
                         BladeFactory bladeFactory = new BladeFactory(blade, clusterConfiguration, inputConfig.getEsxiCores(), inputConfig.getTxrxCores());
 
                         clusterList.add(new Cluster(clusterLabel, Util.readSheet(inputConfig.getvBomFilePath(), clusterLabel, vBomRules.getPreProcessRules()), bladeFactory, inputConfig));
@@ -306,13 +328,46 @@ public class ServiceLayer {
         }
 
     }
-
+    //synergy chnages
+//    public void pickFromCatalogsnergy() throws VfException {
+//        List<String> sheetLabelList = Util.readSheetLabel(inputConfig.getvBomFilePath());
+//        int i = 0;
+//        for (String clusterLabel : sheetLabelList) {
+//        	
+//        	Map<String, Compute> Blademap = new HashMap<String, Compute>(){{ put(clusterLabel,(Compute)(CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getClusterConfiguration().get(i).getBladeRow(), CatalogConstants.BLADE)));}};
+//        	catalog.setClusterBlademap(Blademap);
+//        	Map<String, Container> Enclosuremap = new HashMap<String, Container>(){{ put(clusterLabel,(Container)(CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getClusterConfiguration().get(i).getEnclosure(), CatalogConstants.ENCLOSURE)));}};
+//        	catalog.setClusterEnclosuremap(Enclosuremap);
+//        	Map<String, Storage> ThreeParmap = new HashMap<String, Storage>(){{ put(clusterLabel,(Storage)(CatalogFromExcel.getCatalogEntry(CatalogConstants.STORAGE, inputConfig.getClusterConfiguration().get(0).getThreePar(), CatalogConstants.THREEPAR)));}};
+//        	catalog.setClusterThreeParmap(ThreeParmap);
+//        	Map<String, Storage> ThreeParExmap = new HashMap<String, Storage>(){{ put(clusterLabel,(Storage)(CatalogFromExcel.getCatalogEntry(CatalogConstants.THREEPAR_EXPANSION, inputConfig.getClusterConfiguration().get(0).getThreePar(), CatalogConstants.THREEPAR_EXPANSION)));}};
+//        	catalog.setClusterThreeParExpansionmap(ThreeParExmap);
+//        	Map<String, Storage> Diskmap = new HashMap<String, Storage>(){{ put(clusterLabel,(Storage)(CatalogFromExcel.getCatalogEntry(CatalogConstants.DISK, inputConfig.getClusterConfiguration().get(0).getThreePar(), CatalogConstants.DISK)));}};
+//        	catalog.setClusterDiskmap(Diskmap);
+//        	Map<String, Storage> clusterEnclosureDiskmap = new HashMap<String, Storage>(){{ put(clusterLabel,(Storage)(CatalogFromExcel.getCatalogEntry(CatalogConstants.DRIVE_ENCLOSURE_DISK, inputConfig.getClusterConfiguration().get(0).getThreePar(), CatalogConstants.DRIVE_ENCLOSURE_DISK)));}};
+//        	catalog.setClusterEnclosureDiskmap(clusterEnclosureDiskmap);
+//        	i = i+1;
+//        }
+//        	//catalog.setClusterBlademap(clusterLabel, ((Compute)(CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getClusterConfiguration().get(0).getBladeRow(), CatalogConstants.BLADE))));
+//        	
+//        }
+    
 
     public void pickFromCatalog() throws VfException {
-        catalog.setBlade((Compute) (CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getBlade(), CatalogConstants.BLADE)));
-        catalog.setBladeHighPerformance((Compute) (CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getHighPerformanceBlade(), CatalogConstants.HIGH_PERFORMANCE_BLADE)));
-        catalog.setEnclosure((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getEnclosure(), CatalogConstants.ENCLOSURE));
-        catalog.setEnclosureHighPerformance((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getHighPerformanceEnclosure(), CatalogConstants.HIGH_PERFORMANCE_ENCLOSURE));
+        catalog.setSynSigBlade((Compute) (CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getSynSigBlade(), CatalogConstants.SYN_SIG_BLADE)));
+        catalog.setSynMedBlade((Compute) (CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getSynMedBlade(), CatalogConstants.SYN_MED_BLADE)));
+        catalog.setSynDataBlade((Compute)(CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getSynDataBlade(), CatalogConstants.SYN_DATA_BLADE)));
+        catalog.setC7KDellStdblade((Compute)(CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getC7KDellStdblade(), CatalogConstants.C7K_STD_BLADE)));
+        catalog.setC7kDellHighPerfBlade((Compute)(CatalogFromExcel.getCatalogEntry(CatalogConstants.COMPUTE, inputConfig.getCatalogChoices().getC7kDellHighPerfBlade(), CatalogConstants.C7K_HIGH_BLADE)));
+        
+        catalog.setSynSigEnclousre((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getSynSigEnclousre(), CatalogConstants.SYN_SIG_ENCLOSURE));
+        catalog.setSynMedEnclosure((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getSynMedEnclosure(), CatalogConstants.SYN_MED_ENCLOSURE));
+        catalog.setSynDataEnclosure((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getSynDataEnclosure(), CatalogConstants.SYN_DATA_ENCLOSURE));
+        catalog.setC7KDellStdEnclosure((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getC7KDellStdEnclosure(), CatalogConstants.C7K_STD_ENCLOSURE));
+        catalog.setC7kDellHighPerfEnclosure((Container) CatalogFromExcel.getCatalogEntry(CatalogConstants.CONTAINER, inputConfig.getCatalogChoices().getC7kDellHighPerfEnclosure(), CatalogConstants.C7K_HIGH_ENCLOSURE));
+        //Synegry changes - ends
+        
+        
         catalog.setThreePar((Storage) CatalogFromExcel.getCatalogEntry(CatalogConstants.STORAGE, inputConfig.getCatalogChoices().getThreePar(), CatalogConstants.THREEPAR));
         catalog.setThreeParExpansion((Storage) CatalogFromExcel.getThreeParDependency(CatalogConstants.THREEPAR_EXPANSION, inputConfig.getCatalogChoices().getThreePar(), CatalogConstants.THREEPAR_EXPANSION));
         catalog.setDisk((Storage) CatalogFromExcel.getThreeParDependency(CatalogConstants.DISK, inputConfig.getCatalogChoices().getThreePar(), CatalogConstants.DISK));

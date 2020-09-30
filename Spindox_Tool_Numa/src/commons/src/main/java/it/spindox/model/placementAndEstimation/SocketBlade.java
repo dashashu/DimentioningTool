@@ -15,14 +15,17 @@ public class SocketBlade {
     private Double ram;
     //Ashutosh: Numa
     private Double ocupiedCore; // number of cores this socket occupied for numa
+    private Double ocupiedRam; 
     private String numaSocket; //
     
     // virtual machines (and their corresponding number of cores) that are currently hosted by this socket
     private Map<VirtualMachine, Double> virtualMachineCoreOccupancy;
-
+    //NUMA
+    private Map<VirtualMachine, Double> virtualMachineRamOccupancy;
 
     public SocketBlade(Blade blade, double core) {
         this.virtualMachineCoreOccupancy = new HashMap<VirtualMachine, Double>();
+        this.virtualMachineRamOccupancy = new HashMap<VirtualMachine, Double>();
         this.core = core;
         this.blade = blade;
         this.esxiCores = 0.0;
@@ -49,7 +52,15 @@ public class SocketBlade {
     public Double getEffectiveCore() {
         return core - (this.esxiCores + this.txrxCores);
     }
-
+    
+    //NUMA changes
+	public Double getRamUsed() {
+		return virtualMachineRamOccupancy.keySet().stream().mapToDouble(vm -> virtualMachineRamOccupancy.get(vm)).sum();
+	}
+    public Double getRamAvailable() {
+        return core - getRamUsed() - (this.ocupiedRam);
+    }
+	
     public Double getCore() {
         return core;
     }
@@ -99,6 +110,16 @@ public class SocketBlade {
 
 	public void setOcupiedCore(Double ocupiedCore) {
 		this.ocupiedCore = ocupiedCore;
+	}
+
+
+	public Double getOcupiedRam() {
+		return ocupiedRam;
+	}
+
+
+	public void setOcupiedRam(Double ocupiedRam) {
+		this.ocupiedRam = ocupiedRam;
 	}
 
 

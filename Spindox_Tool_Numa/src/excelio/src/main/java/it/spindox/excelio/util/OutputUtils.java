@@ -81,8 +81,8 @@ public class OutputUtils {
 		outputExcelManagement.createTotalOutputSheet(totOP, yearsOrder);
 
 		//Ashutosh : NUMA placement sheet
-		Map<String, Map<String, Map<String, List<String>>>> numa = generateNumaBladeData(clusterList, yearsOrder);
-		outputExcelManagement.createNumaPlacementSheet( clusterList, numa, yearsOrder);
+//		Map<String, ArrayList<Map<String, ArrayList<Map<String, List<String>>>>>> numa = generateNumaBladeData(clusterList, yearsOrder);
+//		outputExcelManagement.createNumaPlacementSheet( clusterList, numa, yearsOrder);
 		
 		Tetris ttrs = generateTetrisData(clusterList, catalog, inputConfig);
 		List<String> sortedYearNames = ttrs.getSortedYearNames();
@@ -121,20 +121,38 @@ public class OutputUtils {
 																					// the data
 					YearSummary ys = new YearSummary();
 					Integer storage = 0;
-
-					if (c.getClusterConfiguration().isHighPerformanceBladeFlag()) { // del cluster // I insert the
-																					// blades according to the cluster
-																					// settings
-
-						ys.setBladeNumber(0);
-						ys.setHpBladeNumber(entry.getValue().size());
-					} else {
-						// Ashutosh: new flag :bladeBufferPercentage
-						int bladeValue = entry.getValue().size();
-						ys.setBladeNumber(bladeValue);
-								//+ ((int) Math.ceil((inputConfig.getBladeBufferPercentage() / 100) * bladeValue)));
-						ys.setBladeNumber(entry.getValue().size());
-						ys.setHpBladeNumber(0);
+					//Synergy Changes
+					if (c.getClusterConfiguration().isSynSigBladeFlag()) {
+						ys.setSynSigBlade(entry.getValue().size());
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					}else if (c.getClusterConfiguration().isSynMedBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(entry.getValue().size());
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					}else if (c.getClusterConfiguration().isSynDataBladeFlag()) { 
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(entry.getValue().size());
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(0);
+					} 
+					else if (c.getClusterConfiguration().isC7KDellStdbladeFlag()){
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(entry.getValue().size());
+						ys.setC7kDellHighPerfBlade(0);
+					}else if(c.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
+						ys.setSynSigBlade(0);
+						ys.setSynMedBlade(0);
+						ys.setSynDataBlade(0);
+						ys.setC7KDellStdblade(0);
+						ys.setC7kDellHighPerfBlade(entry.getValue().size());
 					}
 
 					for (Blade b : entry.getValue()) // conto lo storage
@@ -179,8 +197,11 @@ public class OutputUtils {
 						if (totalYs == null)
 							continue;
 
-						totalYs.setBladeNumber(totalYs.getBladeNumber() + entry.getValue().getBladeNumber());
-						totalYs.setHpBladeNumber(totalYs.getHpBladeNumber() + entry.getValue().getHpBladeNumber());
+						totalYs.setSynSigBlade(totalYs.getSynSigBlade() + entry.getValue().getSynDataBlade());
+						totalYs.setSynMedBlade(totalYs.getSynMedBlade() + entry.getValue().getSynMedBlade());
+						totalYs.setSynDataBlade(totalYs.getSynDataBlade() + entry.getValue().getSynDataBlade());
+						totalYs.setC7KDellStdblade(totalYs.getC7KDellStdblade() + entry.getValue().getC7KDellStdblade());
+						totalYs.setC7kDellHighPerfBlade(totalYs.getC7kDellHighPerfBlade() + entry.getValue().getC7kDellHighPerfBlade());
 						totalYs.setStorageTotal(totalYs.getStorageTotal() + entry.getValue().getStorageTotal());
 
 						map.put(entry.getKey(), totalYs);
@@ -207,7 +228,7 @@ public class OutputUtils {
 						map.put(entry.getKey(), new SiteDetails(entry.getValue()));
 
 					sd.setClusterTotal(new HashMap<String, SiteDetails>(map));
-					sd.setHighPerformance(c.getClusterConfiguration().isHighPerformanceBladeFlag());
+					sd.setHighPerformance(c.getClusterConfiguration().isC7kDellHighPerfBladeFlag());
 					siteDetailsTableList.add(sd);
 				} else {
 					sd.addToTotals(clusterTotals);
@@ -282,12 +303,17 @@ public class OutputUtils {
 				cumulativeBladeCluster.setSite(site);
 
 				String bladeType = "";
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) // per ogni cluster verifico se la
-																					// blade è normale o HP e recupero
-																					// la descrizione
-					bladeType = catalog.getBladeHighPerformance().getComponentDescription();
-				else
-					bladeType = catalog.getBlade().getComponentDescription();
+				//synergy Changes
+				if (cluster.getClusterConfiguration().isSynSigBladeFlag()) {
+					bladeType = catalog.getSynSigBlade().getComponentDescription();
+				}else if (cluster.getClusterConfiguration().isSynMedBladeFlag()) { 
+					bladeType = catalog.getSynMedBlade().getComponentDescription();
+				}else if (cluster.getClusterConfiguration().isSynDataBladeFlag()){
+					bladeType = catalog.getSynDataBlade().getComponentDescription();
+				}else if (cluster.getClusterConfiguration().isC7KDellStdbladeFlag()) {
+					bladeType = catalog.getC7KDellStdblade().getComponentDescription();
+				}else 
+					bladeType = catalog.getC7kDellHighPerfBlade().getComponentDescription();
 
 				Map<String, List<Blade>> map = cluster.getPlacementTable().getPlacementForSite(site);
 				Map<String, Integer> mapPerYear = new HashMap<String, Integer>();
@@ -328,35 +354,33 @@ public class OutputUtils {
 	 * added by Ashutosh Dash. Method is Network sheet count, Network card, SAN
 	 * ,total blade count etc.
 	 */
-	private static Map<String, Map<String, Map<String, List<String>>>> generateNumaBladeData(List<Cluster> clusterList, Map<Integer, String> yearsOrder) {
-
-		Map<String, List<String>> yearsocketMap = new HashMap<String, List<String>>();
-		Map<String, Map<String, List<String>>> siteYrSocketMap = new HashMap<String, Map<String, List<String>>>();
-		Map<String, Map<String, Map<String, List<String>>>> clusterSiteYrSocketMap = new HashMap<String, Map<String,Map<String,List<String>>>>();
-		
-		for (Cluster cluster: clusterList) {
-			for (int i = 0; i < cluster.getPlacementTable().getPlacementResultList().size(); i++) {//site-year level
-				for (int j = 0; j < cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().size(); j++) {
-					if(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getNumaBlade()=='Y') {//if Numa
-						List<String> socket0 = new ArrayList<String>();//VM names
-						List<String> socket1 = new ArrayList<String>();
-						//List<List<String>> socketList = new ArrayList<List<String>>();
-						List<String> socketList = new ArrayList<String>();
-						
-						socketList.add(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getVmNames());
-						socketList.add(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getVmNames());
-//						socketList.add(socket1);
-//						socketList.add(socket0); //both sockets 0,1
-						
-						yearsocketMap.put(cluster.getPlacementTable().getPlacementResultList().get(i).getYear(),socketList);
-						siteYrSocketMap.put(cluster.getPlacementTable().getPlacementResultList().get(i).getSite(),yearsocketMap);
-					}
-				}
-			}
-			clusterSiteYrSocketMap.put(cluster.getSheetLabel(),siteYrSocketMap);
-		}		
-		return clusterSiteYrSocketMap;
-	}
+//	private static Map<String, ArrayList<Map<String, ArrayList<Map<String, List<String>>>>>> generateNumaBladeData(List<Cluster> clusterList, Map<Integer, String> yearsOrder) {
+//		ArrayList<Map<String, List<String>>> yearsocketMapList =  new ArrayList<Map<String,List<String>>>();
+//		ArrayList<Map<String, ArrayList<Map<String, List<String>>>>> siteYrSocketMapList = new ArrayList<Map<String, ArrayList<Map<String,List<String>>>>>();
+//		
+//		Map<String, List<String>> yearsocketMap = new HashMap<String, List<String>>();
+//		Map<String, ArrayList<Map<String, List<String>>>> siteYrSocketMap = new HashMap<String, ArrayList<Map<String, List<String>>>>();
+//		Map<String, ArrayList<Map<String, ArrayList<Map<String, List<String>>>>>> clusterSiteYrSocketMap = new HashMap<String, ArrayList<Map<String, ArrayList<Map<String, List<String>>>>>>();
+//		
+//		for (Cluster cluster: clusterList) {
+//			for (int i = 0; i < cluster.getPlacementTable().getPlacementResultList().size(); i++) {//site-year level
+//				for (int j = 0; j < cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().size(); j++) {
+//					if(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getNumaBlade()=='Y') {//if Numa
+//						List<String> socketList = new ArrayList<String>();
+//						
+//						socketList.add(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getVmNames());
+//						socketList.add(cluster.getPlacementTable().getPlacementResultList().get(i).getPlacement().get(j).getVmNames());						
+//						yearsocketMap.put(cluster.getPlacementTable().getPlacementResultList().get(i).getYear(),socketList);
+//						yearsocketMapList.add(yearsocketMap);
+//						siteYrSocketMap.put(cluster.getPlacementTable().getPlacementResultList().get(i).getSite(),yearsocketMapList);
+//						siteYrSocketMapList.add(siteYrSocketMap);
+//					}
+//				}
+//			}
+//			clusterSiteYrSocketMap.put(cluster.getSheetLabel(),siteYrSocketMapList);
+//		}		
+//		return clusterSiteYrSocketMap;
+//	}
 
 	private static OutputBlades NetworkPortEnclosure(List<Cluster> clusterList, Catalog catalog,
 			Map<Integer, String> yearsOrder, InputConfiguration inputConfig) {
@@ -386,7 +410,7 @@ public class OutputUtils {
 		for (Cluster cluster : clusterList) {
 			for (String site : cluster.getPlacementTable().getSite()) { 
 				
-				if(!cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
+				if(!cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
 				cumulativeBladeTotalsS = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsS, yearsOrder, cluster.isFoundation());
 				}else {
 				cumulativeBladeTotalsH = addToTotals(site, cluster.getPlacementTable().getPlacementForSite(site),cumulativeBladeTotalsH, yearsOrder, cluster.isFoundation());																	
@@ -400,13 +424,13 @@ public class OutputUtils {
 				cumulativeBladeCluster.setClusterName(cluster.getSheetLabel());
 				cumulativeBladeCluster.setSite(site);
 				cumulativeBladeCluster.setValueForYears(mapPerYear);
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
+				if (cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
 					cumulativeBladeCluster.setBladeType("high performance");
 				}else {
 					cumulativeBladeCluster.setBladeType("Standard");
 				}
 				cumulativeBladeClusters.add(cumulativeBladeCluster);
-				if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {// HP
+				if (cluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {// HP
 					if (siteYearBladeMapH.containsKey(site)) {
 						Set<String> yearNames = siteYearBladeMapH.get(site).keySet();
 						
@@ -670,9 +694,9 @@ public class OutputUtils {
 		int enclouserf = 0;
 		int foundationBlades = 7;
 
-		if (catalog.getEnclosure().getVendor().contains("HP")) {
+		if (catalog.getC7KDellStdEnclosure().getVendor().contains("HP")) {
 			if (bladeType.equalsIgnoreCase("Standard")) {
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));// number of enclosure
@@ -687,7 +711,7 @@ public class OutputUtils {
 					} else
 						enclouser = enclouserf;// enclosure count
 
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (12));
@@ -704,7 +728,7 @@ public class OutputUtils {
 						enclouser = enclouserf;// enclosure count
 				}
 			} else {// highperformance
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (13));// 2.5 = 3
@@ -718,7 +742,7 @@ public class OutputUtils {
 						enclouser = (enclouserf + 1);
 					} else
 						enclouser = enclouserf;// enclosure count
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (12));// 2.5 = 3
@@ -734,9 +758,9 @@ public class OutputUtils {
 						enclouser = enclouserf;// enclosure count
 				}
 			}
-		} else if (catalog.getEnclosure().getVendor().contains("DELL")) {
+		} else if (catalog.getC7KDellStdEnclosure().getVendor().contains("DELL")) {
 			if (bladeType.equalsIgnoreCase("Standard")) {
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (16));// number of enclosure
@@ -751,7 +775,7 @@ public class OutputUtils {
 					} else
 						enclouser = enclouserf;// enclosure count
 
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));
@@ -768,7 +792,7 @@ public class OutputUtils {
 						enclouser = enclouserf;// enclosure count
 				}
 			} else {// highperformance
-				if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("AC")) {
+				if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("AC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (16));// 2.5 = 3
@@ -782,7 +806,7 @@ public class OutputUtils {
 						enclouser = (enclouserf + 1);
 					} else
 						enclouser = enclouserf;// enclosure count
-				} else if (catalog.getEnclosure().getAcdc().equalsIgnoreCase("DC")) {
+				} else if (catalog.getC7KDellStdEnclosure().getAcdc().equalsIgnoreCase("DC")) {
 					if (inputConfig.isFoundationFlag()) {
 						foundationEnlosure = 1;
 						enclouserf = ((bladeCountyear + foundationBlades) / (14));// 2.5 = 3
@@ -798,7 +822,7 @@ public class OutputUtils {
 						enclouser = enclouserf;// enclosure count
 				}
 			}
-		} else if (catalog.getEnclosure().getVendor().contains("HUAWEI")) {
+		} else if (catalog.getC7KDellStdEnclosure().getVendor().contains("HUAWEI")) {
 			if (inputConfig.isFoundationFlag()) {
 				foundationEnlosure = 1;
 				enclouserf = ((bladeCountyear + foundationBlades) / (14));// 2.5 = 3
@@ -891,11 +915,18 @@ public class OutputUtils {
 					.filter(cc -> cc.getSheetLabel().equals(cluster.getSheetLabel())).findFirst().get();
 
 			Compute catalogBlade = null;
-			if (cluster.getClusterConfiguration().isHighPerformanceBladeFlag())
-				catalogBlade = catalog.getBladeHighPerformance();
-			else
-				catalogBlade = catalog.getBlade();
-
+			//Synergy Changes
+			if(cluster.getClusterConfiguration().isSynSigBladeFlag()) {
+				catalogBlade = catalog.getSynSigBlade();
+			}else if(cluster.getClusterConfiguration().isSynMedBladeFlag()) {
+				catalogBlade = catalog.getSynMedBlade();
+			}else if(cluster.getClusterConfiguration().isSynDataBladeFlag()) {
+				catalogBlade = catalog.getSynDataBlade();
+			}else if (cluster.getClusterConfiguration().isC7KDellStdbladeFlag()) {
+				catalogBlade = catalog.getC7KDellStdblade();
+			}else {
+				catalogBlade = catalog.getC7kDellHighPerfBlade();
+			}
 			for (PlacementResult pr : cluster.getPlacementTable().getPlacementResultList()) {
 				TetrisYear tetrisYear = new TetrisYear();
 				String site = pr.getSite();
@@ -998,8 +1029,11 @@ public class OutputUtils {
 		storageElements.add(catalog.getDriveEnclosureDisk().getComponentId());
 
 		Set<String> enclosureElements = new HashSet<String>();
-		enclosureElements.add(catalog.getEnclosure().getComponentId());
-		enclosureElements.add(catalog.getEnclosureHighPerformance().getComponentId());
+		enclosureElements.add(catalog.getC7KDellStdEnclosure().getComponentId());
+		enclosureElements.add(catalog.getC7kDellHighPerfEnclosure().getComponentId());
+		enclosureElements.add(catalog.getSynSigEnclousre().getComponentId());
+		enclosureElements.add(catalog.getSynDataEnclosure().getComponentId());
+		enclosureElements.add(catalog.getSynMedEnclosure().getComponentId());
 
 		for (Map.Entry<String, List<EstimationLine>> entry : estimation.getEstimationTable().entrySet()) {
 			for (EstimationLine el : entry.getValue()) {

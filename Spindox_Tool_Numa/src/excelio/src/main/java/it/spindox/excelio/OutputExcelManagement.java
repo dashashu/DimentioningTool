@@ -75,8 +75,8 @@ public class OutputExcelManagement {
 	public OutputExcelManagement() {
 		
 		outputWorkbook = new XSSFWorkbook();
-		  //filename = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Output.xlsx";		
-		  filename = "./Output.xlsx";
+		  filename = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Output.xlsx";		
+		  //filename = "./Output.xlsx";
 	}
 
 	/**
@@ -574,58 +574,61 @@ public class OutputExcelManagement {
 		}
 	}
 
-	public void createNumaPlacementSheet( List<Cluster> clusterList,Map<String, Map<String, Map<String, List<String>>>> clusterSiteYrSocketMap,Map<Integer, String> yearsOrder) {
-		// create this sheet only if any blade consist a NUMA VM
-		Map<String, Map<String, List<String>>> siteYrSocketMap = new HashMap<String, Map<String, List<String>>>();
-		Sheet sheet = outputWorkbook.createSheet("NUMA Blade");
-		PrintSetup printSetup = sheet.getPrintSetup();
-		printSetup.setLandscape(true);
-		sheet.setFitToPage(true);
-		sheet.setHorizontallyCenter(true);
-		ArrayList titles_type1 = new ArrayList<>();
-		ArrayList subtitles_type = new ArrayList<>();
-		List<String> yearNames = new ArrayList<>();
-		titles_type1.add("Site");
-		
-		for (int i = 1; i < 6; i++) {
-			if (yearsOrder.get(i) != null)
-				yearNames.add(yearsOrder.get(i));
-		}
-		for(int i = 0;i<yearNames.size();i++) {
-			titles_type1.add(yearNames.get(i));
-			titles_type1.add("");
-		}
-		//titles_type1.add(subtitles_type);
-
-		int rowIndex = 1;
-		
-		String headerOfTable = "";
-		ArrayList tableNumaData = new ArrayList<>();
-		for (Cluster cluster: clusterList) {
-			headerOfTable = "Numa Blade in cluster : " + cluster.getSheetLabel();
-			siteYrSocketMap = clusterSiteYrSocketMap.get(cluster.getSheetLabel());//one cluster
-			for (Map.Entry<String, Map<String, List<String>>> element0 : siteYrSocketMap.entrySet()) {//one key -value
-				
-				List<Object> tempRow = new ArrayList<>();
-				tempRow.add(element0.getKey());//site
-				//List<Object> tempRow1 = new ArrayList<>();
-				for(Map.Entry<String, List<String>> element1: element0.getValue().entrySet()) {
-					for (String element2 : element1.getValue()) {
-					tempRow.add(element2);
-				}
-				}
-				//tempRow.addAll(tempRow1);//SocketLists
-				tableNumaData.add(tempRow);
-			}
-			int totalTableColumns = titles_type1.size();
-			rowIndex = insertOutputTable(sheet, rowIndex, headerOfTable, tableNumaData, titles_type1,totalTableColumns);
-			for (int k = 2; k <= titles_type1.size(); k++) {
-				sheet.autoSizeColumn(k);
-			}
-			sheet.createRow(rowIndex++);
-			tableNumaData.clear();
-		}
-	}
+//	public void createNumaPlacementSheet( List<Cluster> clusterList,Map<String, ArrayList<Map<String, ArrayList<Map<String, List<String>>>>>> clusterSiteYrSocketMap,Map<Integer, String> yearsOrder) {
+//		// create this sheet only if any blade consist a NUMA VM
+//		Map<String, Map<String, List<String>>> siteYrSocketMap = new HashMap<String, Map<String, List<String>>>();
+//		Sheet sheet = outputWorkbook.createSheet("NUMA Blade");
+//		PrintSetup printSetup = sheet.getPrintSetup();
+//		printSetup.setLandscape(true);
+//		sheet.setFitToPage(true);
+//		sheet.setHorizontallyCenter(true);
+//		ArrayList titles_type1 = new ArrayList<>();
+//		ArrayList subtitles_type = new ArrayList<>();
+//		List<String> yearNames = new ArrayList<>();
+//		titles_type1.add("Site");
+//		
+//		for (int i = 1; i < 6; i++) {
+//			if (yearsOrder.get(i) != null)
+//				yearNames.add(yearsOrder.get(i));
+//		}
+//		for(int i = 0;i<yearNames.size();i++) {
+//			titles_type1.add(yearNames.get(i));
+//			titles_type1.add("");
+//		}
+//		//titles_type1.add(subtitles_type);
+//
+//		int rowIndex = 1;
+//		
+//		String headerOfTable = "";
+//		ArrayList tableNumaData = new ArrayList<>();
+//		for (Cluster cluster: clusterList) {
+//			headerOfTable = "Numa Blade in cluster : " + cluster.getSheetLabel();
+//			ArrayList<Map<String, ArrayList<Map<String, List<String>>>>> siteYrSocketMapList = clusterSiteYrSocketMap.get(cluster.getSheetLabel());//one cluster
+//			for (Map<String, ArrayList<Map<String, List<String>>>> siteYrSocketMap1: siteYrSocketMapList) {
+//			for (Entry<String, ArrayList<Map<String, List<String>>>> element0 : siteYrSocketMap1.entrySet()) {
+//				
+//				List<Object> tempR ow = new ArrayList<>();
+//				tempRow.add(element0.getKey());//site
+//				for (Map<String, List<String>> element1:element0.getValue()) {
+//					yearsocketMapList
+//				for (ArrayList<String> yearsocketMap : yearsocketMapList) {
+//				for(Map.Entry<String, List<String>> element1: yearsocketMap.getValue().entrySet()) {
+//					for (String element2 : element1.getValue()) {
+//					tempRow.add(element2);
+//				}
+//				}
+//				}}
+//				tableNumaData.add(tempRow);
+//			}}
+//			int totalTableColumns = titles_type1.size();
+//			rowIndex = insertOutputTable(sheet, rowIndex, headerOfTable, tableNumaData, titles_type1,totalTableColumns);
+//			for (int k = 2; k <= titles_type1.size(); k++) {
+//				sheet.autoSizeColumn(k);
+//			}
+//			sheet.createRow(rowIndex++);
+//			tableNumaData.clear();
+//		}
+//	}
 	
 	public List<OutputTable> loopMethod(List<Map<String, Map<String, Integer>>> mapToReturn) {
 		ArrayList<OutputTable> objList1 = new ArrayList<OutputTable>();
@@ -1174,7 +1177,7 @@ public class OutputExcelManagement {
 
 				for (String yr : yearNames) {
 					YearSummary yearSummary = siteTableList.get(i).getYearSummaryList().get(yr);
-					int bladeNumber, hpBladeNumber, storageTotal;
+					int ssbladeNumber, smbladeNumber,sdbladeNumber, csbladeNumber,chbladeNumber,storageTotal;
 					if (yearSummary == null) {
 						if (siteTableList.get(i).getRowName().equalsIgnoreCase("Foundation")) {
 							for (Map.Entry<String, YearSummary> x : siteTableList.get(i).getYearSummaryList()
@@ -1183,28 +1186,38 @@ public class OutputExcelManagement {
 									yearSummary = x.getValue();
 							}
 
-							bladeNumber = yearSummary.getBladeNumber();
-							hpBladeNumber = yearSummary.getHpBladeNumber();
+							ssbladeNumber = yearSummary.getSynSigBlade();
+							smbladeNumber = yearSummary.getSynMedBlade();
+							sdbladeNumber = yearSummary.getSynDataBlade();
+							csbladeNumber = yearSummary.getC7KDellStdblade();
+							chbladeNumber = yearSummary.getC7kDellHighPerfBlade();
 							storageTotal = yearSummary.getStorageTotal();
 						} else {
-							bladeNumber = 0;
-							hpBladeNumber = 0;
+							ssbladeNumber = 0;
+							smbladeNumber = 0;
+							sdbladeNumber = 0;
+							csbladeNumber = 0;
+							chbladeNumber = 0;
 							storageTotal = 0;
 						}
 					} else {
-						bladeNumber = yearSummary.getBladeNumber();
-						hpBladeNumber = yearSummary.getHpBladeNumber();
+						ssbladeNumber = yearSummary.getSynSigBlade();
+						smbladeNumber = yearSummary.getSynMedBlade();
+						sdbladeNumber = yearSummary.getSynDataBlade();
+						csbladeNumber = yearSummary.getC7KDellStdblade();
+						chbladeNumber = yearSummary.getC7kDellHighPerfBlade();
 						storageTotal = yearSummary.getStorageTotal();
 					}
-					StringBuilder sb = new StringBuilder("Blade type 1 total: ");
-					//Ashutosh: 28/08/2019:  adding new flag : BladeBufferPercentage
-					//sb.append(bladeNumber+((double)(bladeNumber*inputConfig.getBladeBufferPercentage())/100));	
-					sb.append((bladeNumber));
-							//+((inputConfig.getBladeBufferPercentage()/100.0f)*bladeNumber)));
+					StringBuilder sb = new StringBuilder("Blade type 1 total: ");	
+					sb.append((ssbladeNumber));
 					sb.append("\nBlade type 2 total: ");
-					//Ashutosh: 28/08/2019:  adding new flag : BladeBufferPercentage
-					sb.append(hpBladeNumber);
-							//+((inputConfig.getBladeBufferPercentage()/100)*hpBladeNumber)));
+					sb.append(smbladeNumber);
+					sb.append("\nBlade type 3 total: ");
+					sb.append(sdbladeNumber);
+					sb.append("\nBlade type 4 total: ");
+					sb.append(csbladeNumber);
+					sb.append("\nBlade type 5 total: ");
+					sb.append(chbladeNumber);
 					sb.append("\nStorage TB total: ");
 					sb.append(storageTotal);
 					tempRow.add(sb.toString());

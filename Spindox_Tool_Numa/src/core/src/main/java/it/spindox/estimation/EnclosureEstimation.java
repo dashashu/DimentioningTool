@@ -25,16 +25,16 @@ public class EnclosureEstimation extends ComponentEstimation {
     @Override
     protected void estimateFoundation(String site) throws UnexpectedSituationOccurredException {
 
-        int numberOfEnclosureToBuy = estimation.getCatalog().getEnclosure().getDefaultValueFoundation();
-        int bladeToCover = estimation.getCatalog().getBlade().getDefaultValueFoundation();
+        int numberOfEnclosureToBuy = estimation.getCatalog().getC7KDellStdEnclosure().getDefaultValueFoundation();
+        int bladeToCover = estimation.getCatalog().getC7KDellStdblade().getDefaultValueFoundation();
         int freeSpace = 0;
-        int maxNumOfHostableUnit = estimation.getCatalog().getEnclosure().getMaxNumOfHostableUnit();
+        int maxNumOfHostableUnit = estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit();
 
         if (estimation.isManagement()) {
             List<EstimationLine> estimationLineList = estimation.getEstimationTable().get(site);
 
             List<EstimationLine> foundationEstimationLine = estimationLineList.stream().filter(el -> {
-                return el.getComponent() == estimation.getCatalog().getBlade()
+                return el.getComponent() == estimation.getCatalog().getC7KDellStdblade()
                         && el.getEstimationLineDetail().stream().filter(eld -> eld.getType().equals(EstimationLineDetail.FOUNDATION)).count() > 0;
             }).collect(Collectors.toList());
 
@@ -54,19 +54,37 @@ public class EnclosureEstimation extends ComponentEstimation {
 
         EstimationLine estimationLine = null;
         List<Cluster> foundationList = estimation.getClusterList().stream().filter(cluster -> cluster.isFoundation()).collect(Collectors.toList());
-
+        int oneFlagCheck = 0;
         if (!foundationList.isEmpty()) {
             Cluster foundationCluster = foundationList.get(0);
-            if (foundationCluster.getClusterConfiguration().isHighPerformanceBladeFlag()) {
+            if (foundationCluster.getClusterConfiguration().isSynSigBladeFlag()) {
+            	freeSpaceOnFoundationEnclosureHighPerformance = freeSpace;
+            	 estimationLine = new EstimationLine(estimation.getCatalog().getSynSigEnclousre(), estimation.getCatalog().getSynSigEnclousre().getComponentDescription());
+            	 oneFlagCheck = +1;
+            }else if (foundationCluster.getClusterConfiguration().isSynMedBladeFlag()) {
                 freeSpaceOnFoundationEnclosureHighPerformance = freeSpace;
-                estimationLine = new EstimationLine(estimation.getCatalog().getEnclosureHighPerformance(), estimation.getCatalog().getEnclosureHighPerformance().getComponentDescription());
-            } else {
+                estimationLine = new EstimationLine(estimation.getCatalog().getSynMedEnclosure(), estimation.getCatalog().getSynMedEnclosure().getComponentDescription());
+                oneFlagCheck = +1;
+            } else if(foundationCluster.getClusterConfiguration().isSynDataBladeFlag()){
+            	freeSpaceOnFoundationEnclosure = freeSpace;
+            	estimationLine = new EstimationLine(estimation.getCatalog().getSynDataEnclosure(), estimation.getCatalog().getSynDataEnclosure().getComponentDescription());
+            	oneFlagCheck = +1;
+            } else if(foundationCluster.getClusterConfiguration().isC7KDellStdbladeFlag()) {
+            	freeSpaceOnFoundationEnclosure = freeSpace;
+            	estimationLine = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription());
+            	oneFlagCheck = +1;
+            } else if(foundationCluster.getClusterConfiguration().isC7kDellHighPerfBladeFlag()) {
                 freeSpaceOnFoundationEnclosure = freeSpace;
-                estimationLine = new EstimationLine(estimation.getCatalog().getEnclosure(), estimation.getCatalog().getEnclosure().getComponentDescription());
+                estimationLine = new EstimationLine(estimation.getCatalog().getC7kDellHighPerfEnclosure(), estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentDescription());
+                oneFlagCheck = +1;
+            }else {
+            	throw new UnexpectedSituationOccurredException("No Blade choose for the cluster"+ " - "+site);
             }
+            if (oneFlagCheck>1) 
+            	throw new UnexpectedSituationOccurredException("Only one blade can be selected. But here multiple blades are seletced for the cluster: "+ foundationCluster.getSheetLabel());
         } else {
             freeSpaceOnFoundationEnclosure = freeSpace;
-            estimationLine = new EstimationLine(estimation.getCatalog().getEnclosure(), estimation.getCatalog().getEnclosure().getComponentDescription());
+            estimationLine = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription());
         }
 
         EstimationLineDetail estimationLineDetail = new EstimationLineDetail(EstimationLineDetail.FOUNDATION, EstimationLineDetail.FOUNDATION);
@@ -78,16 +96,21 @@ public class EnclosureEstimation extends ComponentEstimation {
 
     @Override
     protected void estimateInitiative(String site) throws UnexpectedSituationOccurredException {
-        estimateInitiativeClassic(site);
-        estimateInitiativeHighPerformance(site);
+        estimateInitiativeClassic(site); //standard or 	c7KDellStdblade blade& enclosure 
+        estimateInitiativeHighPerformance(site);//HP or c7kDellHighPerfBlade blade and Enclosure
+        //synergy changes
+        estimateInitiativeSynSig(site);
+        estimateInitiativeSynMed(site);
+        estimateInitiativeSynData(site);
     }
 
-    protected void estimateInitiativeClassic(String site) throws UnexpectedSituationOccurredException {
+    private void estimateInitiativeSynData(String site) throws UnexpectedSituationOccurredException{
+
         int numberOfEnclosureToBuy = 0;
 
-        int maxNumOfHostableUnit = estimation.getCatalog().getEnclosure().getMaxNumOfHostableUnit();
-        String classicEnclosureId = estimation.getCatalog().getEnclosure().getComponentId();
-        String classicBladeId = estimation.getCatalog().getBlade().getComponentId();
+        int maxNumOfHostableUnit = estimation.getCatalog().getSynDataEnclosure().getMaxNumOfHostableUnit();
+        String classicEnclosureId = estimation.getCatalog().getSynDataEnclosure().getComponentId();
+        String classicBladeId = estimation.getCatalog().getSynDataBlade().getComponentId();//Synergy Data blade id
         
         EstimationLine estimationLineEnclosure;
         if (estimation.isFoundation()) {
@@ -98,11 +121,232 @@ public class EnclosureEstimation extends ComponentEstimation {
         	if(!temp.isEmpty())
         		estimationLineEnclosure = temp.get(0);
         	else {
-        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getEnclosure(), estimation.getCatalog().getEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
         		estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
         	}
         } else {
-            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getEnclosure(), estimation.getCatalog().getEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+            estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        }
+
+        List<EstimationLine> bladeList =
+                estimation.getEstimationTable().get(site).stream()
+                        .filter(el -> el.getEstimationLineDetail().stream().filter(eld -> eld.getType().equalsIgnoreCase(EstimationLineDetail.INITIATIVE)).count() > 0)
+                        .filter(estimationLine -> estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.BLADE))
+                        .filter(estimationLine -> estimationLine.getComponent().getComponentId().equalsIgnoreCase(classicBladeId))
+                        .collect(Collectors.toList());
+
+        if(bladeList.size() > 0) {
+	        EstimationLine estimationLine = bladeList.get(0);
+	        for (EstimationLineDetail lineDetail : estimationLine.getEstimationLineDetail()) {
+	            if (lineDetail.getType().equals(EstimationLineDetail.INITIATIVE)) {
+	                EstimationLineDetail esEnclosureDetail = new EstimationLineDetail(EstimationLineDetail.INITIATIVE, lineDetail.getLineReference());
+	
+	                int bladeToPutForThisYear = lineDetail.getQuantity();
+	
+	                if (bladeList.size() > 1) {
+	                    List<EstimationLineDetail> eldFiltered = bladeList.get(1).getEstimationLineDetail().stream().filter(eld -> eld.getLineReference().equalsIgnoreCase(lineDetail.getLineReference())).collect(Collectors.toList());
+	                    for (EstimationLineDetail detail : eldFiltered) {
+	                        bladeToPutForThisYear = bladeToPutForThisYear + detail.getQuantity();
+	                    }
+	                }
+	
+	                if (freeSpaceOnFoundationEnclosure == 0) {
+	                    freeSpaceOnFoundationEnclosure = -bladeToPutForThisYear;
+	                }
+	
+	
+	                if (freeSpaceOnFoundationEnclosure > 0) {
+	                    freeSpaceOnFoundationEnclosure = freeSpaceOnFoundationEnclosure - bladeToPutForThisYear;
+	                }
+	                if (freeSpaceOnFoundationEnclosure < 0) {
+	                    int numberOfBladeToPut = Math.abs(freeSpaceOnFoundationEnclosure);
+	                    numberOfEnclosureToBuy = (int) Math.ceil(new Double(numberOfBladeToPut) / new Double(maxNumOfHostableUnit));
+	                    freeSpaceOnFoundationEnclosure = (numberOfEnclosureToBuy * maxNumOfHostableUnit) - numberOfBladeToPut;
+	                    esEnclosureDetail.setQuantity(numberOfEnclosureToBuy);
+	                } else {
+	                    esEnclosureDetail.setQuantity(0);
+	                }
+	
+	                estimationLineEnclosure.getEstimationLineDetail().add(esEnclosureDetail);
+	
+	
+	            }
+	        }
+        }
+		
+	}
+
+	private void estimateInitiativeSynMed(String site) throws UnexpectedSituationOccurredException{
+        int numberOfEnclosureToBuy = 0;
+
+        int maxNumOfHostableUnit = estimation.getCatalog().getSynMedEnclosure().getMaxNumOfHostableUnit();
+        String classicEnclosureId = estimation.getCatalog().getSynMedEnclosure().getComponentId();
+        String classicBladeId = estimation.getCatalog().getSynMedBlade().getComponentId();//Synergy Media blade id
+        
+        EstimationLine estimationLineEnclosure;
+        if (estimation.isFoundation()) {
+        	List<EstimationLine> temp = estimation.getEstimationTable().get(site).stream()
+                    .filter(el -> el.getComponent().getType().equalsIgnoreCase(CatalogConstants.ENCLOSURE))
+                    .filter(el -> el.getComponent().getComponentId().equals(classicEnclosureId)).collect(Collectors.toList());
+        	
+        	if(!temp.isEmpty())
+        		estimationLineEnclosure = temp.get(0);
+        	else {
+        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+        		estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        	}
+        } else {
+            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+            estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        }
+
+        List<EstimationLine> bladeList =
+                estimation.getEstimationTable().get(site).stream()
+                        .filter(el -> el.getEstimationLineDetail().stream().filter(eld -> eld.getType().equalsIgnoreCase(EstimationLineDetail.INITIATIVE)).count() > 0)
+                        .filter(estimationLine -> estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.BLADE))
+                        .filter(estimationLine -> estimationLine.getComponent().getComponentId().equalsIgnoreCase(classicBladeId))
+                        .collect(Collectors.toList());
+
+        if(bladeList.size() > 0) {
+	        EstimationLine estimationLine = bladeList.get(0);
+	        for (EstimationLineDetail lineDetail : estimationLine.getEstimationLineDetail()) {
+	            if (lineDetail.getType().equals(EstimationLineDetail.INITIATIVE)) {
+	                EstimationLineDetail esEnclosureDetail = new EstimationLineDetail(EstimationLineDetail.INITIATIVE, lineDetail.getLineReference());
+	
+	                int bladeToPutForThisYear = lineDetail.getQuantity();
+	
+	                if (bladeList.size() > 1) {
+	                    List<EstimationLineDetail> eldFiltered = bladeList.get(1).getEstimationLineDetail().stream().filter(eld -> eld.getLineReference().equalsIgnoreCase(lineDetail.getLineReference())).collect(Collectors.toList());
+	                    for (EstimationLineDetail detail : eldFiltered) {
+	                        bladeToPutForThisYear = bladeToPutForThisYear + detail.getQuantity();
+	                    }
+	                }
+	
+	                if (freeSpaceOnFoundationEnclosure == 0) {
+	                    freeSpaceOnFoundationEnclosure = -bladeToPutForThisYear;
+	                }
+	
+	
+	                if (freeSpaceOnFoundationEnclosure > 0) {
+	                    freeSpaceOnFoundationEnclosure = freeSpaceOnFoundationEnclosure - bladeToPutForThisYear;
+	                }
+	                if (freeSpaceOnFoundationEnclosure < 0) {
+	                    int numberOfBladeToPut = Math.abs(freeSpaceOnFoundationEnclosure);
+	                    numberOfEnclosureToBuy = (int) Math.ceil(new Double(numberOfBladeToPut) / new Double(maxNumOfHostableUnit));
+	                    freeSpaceOnFoundationEnclosure = (numberOfEnclosureToBuy * maxNumOfHostableUnit) - numberOfBladeToPut;
+	                    esEnclosureDetail.setQuantity(numberOfEnclosureToBuy);
+	                } else {
+	                    esEnclosureDetail.setQuantity(0);
+	                }
+	
+	                estimationLineEnclosure.getEstimationLineDetail().add(esEnclosureDetail);
+	
+	
+	            }
+	        }
+        }
+    
+		
+	
+	}
+
+	private void estimateInitiativeSynSig(String site) throws UnexpectedSituationOccurredException{
+		// TODO Auto-generated method stub
+
+        int numberOfEnclosureToBuy = 0;
+
+        int maxNumOfHostableUnit = estimation.getCatalog().getSynSigEnclousre().getMaxNumOfHostableUnit();
+        String classicEnclosureId = estimation.getCatalog().getSynSigEnclousre().getComponentId();
+        String classicBladeId = estimation.getCatalog().getSynSigBlade().getComponentId();//Synergy signaling blade id
+        
+        EstimationLine estimationLineEnclosure;
+        if (estimation.isFoundation()) {
+        	List<EstimationLine> temp = estimation.getEstimationTable().get(site).stream()
+                    .filter(el -> el.getComponent().getType().equalsIgnoreCase(CatalogConstants.ENCLOSURE))
+                    .filter(el -> el.getComponent().getComponentId().equals(classicEnclosureId)).collect(Collectors.toList());
+        	
+        	if(!temp.isEmpty())
+        		estimationLineEnclosure = temp.get(0);
+        	else {
+        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+        		estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        	}
+        } else {
+            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+            estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        }
+
+        List<EstimationLine> bladeList =
+                estimation.getEstimationTable().get(site).stream()
+                        .filter(el -> el.getEstimationLineDetail().stream().filter(eld -> eld.getType().equalsIgnoreCase(EstimationLineDetail.INITIATIVE)).count() > 0)
+                        .filter(estimationLine -> estimationLine.getComponent().getType().equalsIgnoreCase(CatalogConstants.BLADE))
+                        .filter(estimationLine -> estimationLine.getComponent().getComponentId().equalsIgnoreCase(classicBladeId))
+                        .collect(Collectors.toList());
+
+        if(bladeList.size() > 0) {
+	        EstimationLine estimationLine = bladeList.get(0);
+	        for (EstimationLineDetail lineDetail : estimationLine.getEstimationLineDetail()) {
+	            if (lineDetail.getType().equals(EstimationLineDetail.INITIATIVE)) {
+	                EstimationLineDetail esEnclosureDetail = new EstimationLineDetail(EstimationLineDetail.INITIATIVE, lineDetail.getLineReference());
+	
+	                int bladeToPutForThisYear = lineDetail.getQuantity();
+	
+	                if (bladeList.size() > 1) {
+	                    List<EstimationLineDetail> eldFiltered = bladeList.get(1).getEstimationLineDetail().stream().filter(eld -> eld.getLineReference().equalsIgnoreCase(lineDetail.getLineReference())).collect(Collectors.toList());
+	                    for (EstimationLineDetail detail : eldFiltered) {
+	                        bladeToPutForThisYear = bladeToPutForThisYear + detail.getQuantity();
+	                    }
+	                }
+	
+	                if (freeSpaceOnFoundationEnclosure == 0) {
+	                    freeSpaceOnFoundationEnclosure = -bladeToPutForThisYear;
+	                }
+	
+	
+	                if (freeSpaceOnFoundationEnclosure > 0) {
+	                    freeSpaceOnFoundationEnclosure = freeSpaceOnFoundationEnclosure - bladeToPutForThisYear;
+	                }
+	                if (freeSpaceOnFoundationEnclosure < 0) {
+	                    int numberOfBladeToPut = Math.abs(freeSpaceOnFoundationEnclosure);
+	                    numberOfEnclosureToBuy = (int) Math.ceil(new Double(numberOfBladeToPut) / new Double(maxNumOfHostableUnit));
+	                    freeSpaceOnFoundationEnclosure = (numberOfEnclosureToBuy * maxNumOfHostableUnit) - numberOfBladeToPut;
+	                    esEnclosureDetail.setQuantity(numberOfEnclosureToBuy);
+	                } else {
+	                    esEnclosureDetail.setQuantity(0);
+	                }
+	
+	                estimationLineEnclosure.getEstimationLineDetail().add(esEnclosureDetail);
+	
+	
+	            }
+	        }
+        }
+    
+		
+	}
+
+	protected void estimateInitiativeClassic(String site) throws UnexpectedSituationOccurredException {
+        int numberOfEnclosureToBuy = 0;
+
+        int maxNumOfHostableUnit = estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit();
+        String classicEnclosureId = estimation.getCatalog().getC7KDellStdEnclosure().getComponentId();
+        String classicBladeId = estimation.getCatalog().getC7KDellStdblade().getComponentId();
+        
+        EstimationLine estimationLineEnclosure;
+        if (estimation.isFoundation()) {
+        	List<EstimationLine> temp = estimation.getEstimationTable().get(site).stream()
+                    .filter(el -> el.getComponent().getType().equalsIgnoreCase(CatalogConstants.ENCLOSURE))
+                    .filter(el -> el.getComponent().getComponentId().equals(classicEnclosureId)).collect(Collectors.toList());
+        	
+        	if(!temp.isEmpty())
+        		estimationLineEnclosure = temp.get(0);
+        	else {
+        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+        		estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
+        	}
+        } else {
+            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7KDellStdEnclosure(), estimation.getCatalog().getC7KDellStdEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7KDellStdEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
             estimation.getEstimationTable().get(site).add(estimationLineEnclosure);
         }
 
@@ -156,9 +400,9 @@ public class EnclosureEstimation extends ComponentEstimation {
     protected void estimateInitiativeHighPerformance(String site) throws UnexpectedSituationOccurredException {
         int numberOfEnclosureToBuy = 0;
 
-        int maxNumOfHostableUnit = estimation.getCatalog().getEnclosureHighPerformance().getMaxNumOfHostableUnit();
-        String hpEnclosureId = estimation.getCatalog().getEnclosureHighPerformance().getComponentId();
-        String hpBladeId = estimation.getCatalog().getBladeHighPerformance().getComponentId();
+        int maxNumOfHostableUnit = estimation.getCatalog().getC7kDellHighPerfEnclosure().getMaxNumOfHostableUnit();
+        String hpEnclosureId = estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentId();
+        String hpBladeId = estimation.getCatalog().getC7kDellHighPerfBlade().getComponentId();
 
 
         EstimationLine estimationLineEnclosure;
@@ -179,10 +423,10 @@ public class EnclosureEstimation extends ComponentEstimation {
         	if(!temp.isEmpty())
         		estimationLineEnclosure = temp.get(0);
         	else
-        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getEnclosureHighPerformance(), estimation.getCatalog().getEnclosureHighPerformance().getComponentDescription() + " with " + estimation.getCatalog().getEnclosureHighPerformance().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+        		estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7kDellHighPerfEnclosure(), estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7kDellHighPerfEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
 
         } else {
-            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getEnclosureHighPerformance(), estimation.getCatalog().getEnclosureHighPerformance().getComponentDescription() + " with " + estimation.getCatalog().getEnclosureHighPerformance().getMaxNumOfHostableUnit() + " Number of Unit Housed");
+            estimationLineEnclosure = new EstimationLine(estimation.getCatalog().getC7kDellHighPerfEnclosure(), estimation.getCatalog().getC7kDellHighPerfEnclosure().getComponentDescription() + " with " + estimation.getCatalog().getC7kDellHighPerfEnclosure().getMaxNumOfHostableUnit() + " Number of Unit Housed");
         }
 
         List<EstimationLine> bladeList =
