@@ -445,7 +445,7 @@ public abstract class Placement {
 					}
 				}
 			}
-
+		}
 
 		//4.considering one empty socket VM
 //		else if(emptySocketBladelist.size()==1){
@@ -559,7 +559,7 @@ public abstract class Placement {
        
     }
     bladeList.addAll(removeBladeList);   
-		}
+		
     }
     
     
