@@ -9,8 +9,8 @@ public class VBomConstants {
     public static final String NAME_OF_SITES = "Name of sites";
     public static final String VNF_INSTANCES_NUMBER = "VNF per site";
     public static final String VNF_CLONES_NUMBER = "Number of VMs per type and per VNF instance";
-    public static final String VNF_NUMA_FLAG = "Numa flag";
-    public static final String VNF_SOCKET_FLAG = "Socket flag";
+    public static final String VNF_NUMA_FLAG = "NUMA\r\n" + "(Accepted Vlaues: TRUE, FLASE, empty cell)";
+    public static final String VNF_SOCKET_FLAG = "Socket\r\n" + "(Wil only consider if NUMA is TRUE)";
     public static final String VM_CPU_NUMBER = "Number of vCPU per VM";
     public static final String VM_RAM = "RAM (GB) per VM";
     public static final String VM_STORAGE_DATA_DISK = "Storage (GB) per VM  - Data Disk";

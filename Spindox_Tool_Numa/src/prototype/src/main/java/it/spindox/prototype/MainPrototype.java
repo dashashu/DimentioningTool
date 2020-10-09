@@ -20,10 +20,10 @@ public class MainPrototype {
     
     public static void main(String[] args) {
     	long startTime = System.nanoTime();
-        //String path = args[0]; 
-        String path = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//inputConfig.json";
-        //String path2 = args[1];
-        String path2 = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//vfe-vbom-rules.json";
+        String path = args[0]; 
+        //String path = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//inputConfig.json";
+        String path2 = args[1];
+        //String path2 = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//vfe-vbom-rules.json";
         File file = new File(path.trim());
         File file2 = new File(path2.trim());
         launchApplicationForPlacementAndEstimationWithClusterSupport(file, file2);

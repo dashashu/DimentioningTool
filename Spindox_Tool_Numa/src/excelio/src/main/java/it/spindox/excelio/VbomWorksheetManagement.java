@@ -167,41 +167,65 @@ public abstract class VbomWorksheetManagement extends WorksheetManagement {
             
             String[] splittedSites = splitStringByCommaOrSemicolon(siti);
             vbyr.setSiteList(new ArrayList<>(Arrays.asList(splittedSites)));
-
+            
             //VNF per site
             vbyr.setVnfPerSite(Util.readNumberFromCell(row, index++, 0, VBomConstants.VNF_INSTANCES_NUMBER));
-
+            
             //Number of VMs per type and per VNF instance
             vbyr.setNumberOfVnfPerTypeAndPerInstance(Util.readNumberFromCell(row, index++, 0, VBomConstants.VNF_CLONES_NUMBER));
-
+            
             //numa flag  (a.k.a. NUMA) per VM
-            vbyr.setNumaFlag(Util.readStringFromCell(row, index++, VBomConstants.VNF_NUMA_FLAG));
+            if (row.getCell(index)!= null ) {
+            	if ("FALSE".equalsIgnoreCase(Util.readStringFromCell(row, index, VBomConstants.VNF_NUMA_FLAG)) || "TRUE".equalsIgnoreCase(Util.readStringFromCell(row, index, VBomConstants.VNF_NUMA_FLAG)) ){
+            		vbyr.setNumaFlag(Util.readStringFromCell(row, index++, VBomConstants.VNF_NUMA_FLAG));
+            }else {
+//            	logger.error("Unexpected error found at row " + (row.getRowNum() +1) + " column " + (index) + ": " + "for the column NUMA Flag, Where the value should be 'TRUE/ FALSE /or empty cell' but the value is '"+ Util.readStringFromCell(row, index, VBomConstants.VNF_NUMA_FLAG)+"'");
+//            	System.exit(0);
+            	vbyr.setNumaFlag("FALSE");
+            	index++;
+            }}else {
+            	vbyr.setNumaFlag("FALSE");
+            	index++;
+            }
+            
             //Numa socket number (a.k.a. socket) per VM
-            vbyr.setSocket(Util.readStringFromCell(row, index++, VBomConstants.VNF_SOCKET_FLAG));
+            if (row.getCell(index) != null) {
+            	if ("1".equalsIgnoreCase(Util.readStringFromCell(row, index, VBomConstants.VNF_SOCKET_FLAG)) || "0".equalsIgnoreCase(Util.readStringFromCell(row, index, VBomConstants.VNF_SOCKET_FLAG)) ) {
+            	vbyr.setSocket(Util.readStringFromCell(row, index++, VBomConstants.VNF_SOCKET_FLAG));
+            }else {
+//            	logger.error("Unexpected error found at row " + (row.getRowNum()+1) + " column " + (index) + ": " + "for the column Socket Flag, Where the value should be 'TRUE/ FALSE /or empty cell' but the value is '"+ Util.readStringFromCell(row, index, VBomConstants.VNF_SOCKET_FLAG)+"'");
+//            	System.exit(0);
+            	vbyr.setSocket("");
+            	index++;
+            }}else {
+            	vbyr.setSocket("");
+            	index++;
+            }
+            
             //Number of vCPU (a.k.a. cores) per VM
             vbyr.setNumberOfVcpuPerVm(Util.readFloatNumberFromCell(row, index++, 0.0, VBomConstants.VM_CPU_NUMBER));
             
             //RAM (GB) per VM
             vbyr.setRamPerVmInGB(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_RAM));
-
+            
             //Storage (GB) per VM  - Data Disk
             vbyr.setStoragePerVmDataDisk(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_STORAGE_DATA_DISK));
-
+            
             //Storage (GB) per VM - OS Disk
             vbyr.setStoragePerVmOsDisk(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_STORAGE_OSDISK));
-
+            
             //Storage IOPS per VM - Running
             vbyr.setStorageIopsPerVmRunning(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_IOPS_RUNNING));
-
+            
             //Storage IOPS per VM - Loading
             vbyr.setStorageIopsPerVmLoading(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_IOPS_LOADING));
-
+            
             cella = row.getCell(index++);   // Storage Read/Write VM workload distribution
             parseReadWriteWorkloadDistributionValue(cella.toString(), vbyr, row.getRowNum() + 1, index);
-
+            
             //North/South bandwidth requirement per VM (Mbit/s)
             vbyr.setNorthSouthBandwidthRequirementPerVm(Util.readNumberFromCell(row, index++, 0, VBomConstants.NORTH_SOUTH_BANDWIDTH));
-
+            
             //East/West  bandwidth requirement per VM (Mbit/s)
             vbyr.setEastWestBandwidthRequirementPerVm(Util.readNumberFromCell(row, index++, 0, VBomConstants.EAST_WEST_BANDWIDTH));
 

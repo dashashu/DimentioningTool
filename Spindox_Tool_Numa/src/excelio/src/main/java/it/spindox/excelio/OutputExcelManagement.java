@@ -75,8 +75,8 @@ public class OutputExcelManagement {
 	public OutputExcelManagement() {
 		
 		outputWorkbook = new XSSFWorkbook();
-		  filename = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Output.xlsx";		
-		  //filename = "./Output.xlsx";
+		  //filename = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Output.xlsx";		
+		  filename = "./Output.xlsx";
 	}
 
 	/**
