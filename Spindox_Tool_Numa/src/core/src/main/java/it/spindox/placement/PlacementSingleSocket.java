@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 import commons.src.main.java.it.spindox.vfexception.core.InconsistentConstraintsException;
 import org.apache.log4j.Logger;
 
+import commons.src.main.java.it.spindox.model.configurations.InputConfiguration;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Blade;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Site;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.SocketBlade;
@@ -23,14 +24,15 @@ public class PlacementSingleSocket extends Placement {
 
     //private static final Logger logger = (Logger) LogManager.getLogger(Placement.class);
 	final static Logger logger = Logger.getLogger(Placement.class);
-
-
+	
+	
     public PlacementSingleSocket(Site site, Cluster cluster) throws InconsistentConstraintsException, NotEnoughResourceAvailableException {
 
         super(site, cluster);
 
         toPlace = new ArrayList<>();
         toPlace.addAll(groupList);
+        
     }
 
     @Override
@@ -77,6 +79,7 @@ public class PlacementSingleSocket extends Placement {
     }
 
     protected boolean canAllocate(Blade blade, VMGroup nwGroup) {
+    	
         if (cluster.getClusterConfiguration().isNumaFlag()) {
             int socketNeeded = 0;
             for (VirtualMachine vm : nwGroup.getVmList()) {
@@ -84,38 +87,40 @@ public class PlacementSingleSocket extends Placement {
             }
             if (socketNeeded > blade.getSocketList().size())
                 return false;
-        }//This will not execute at all.
-        //Ashutosh
-//        boolean numa = false;
-//        boolean socket = false;
-//        for(VirtualMachine vm : nwGroup.getVmList()) {
-//        	if (vm.isNumaflag())
-//    			numa = true;
-//        }
-        
+        }//This will not execute at all.As the cluster NUMA flag is not going to be in use.
+        if(nwGroup.getVmList().stream().anyMatch(vm -> vm.isNumaflag())) {	
+            for(VirtualMachine vm: nwGroup.getVmList()) {      
+            	if((Double.compare((blade.getSocketList().get(0).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(0).getRam()),(vm.getRam()))>=0) )
+            	|| (Double.compare((blade.getSocketList().get(1).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(1).getRam()),(vm.getRam()))>=0))){ 
+            	
+            		return true;
+            	}else {
+            		logger.error(" Numa VM cannot be consider for placement for the VM " + nwGroup.getVmList().get(0).getVmName());
+            		System.exit(0);
+            		return false;
+            		
+            	}   	
+            }}
+             else {
         boolean highTroughputConsidered = false; //It will be true if we have left a core free for highTroughput, or if the HT is never at 0 in the VMs
         boolean highTroughputToBeConsidered = blade.isHighThroughputCoreZero(); //L'HT è 0 in almeno una VM? Lo inizializziamo considerando il valore indicato dalla blade
 
-        for (VirtualMachine vm : nwGroup.getVmList()) //Scorro le VM e se qualcuna ha HT a 0 aggiorno il valore di highTroughputToBeConsidered
-        	if (vm.getHighThroughputCore() == 0) {
-                highTroughputToBeConsidered = true;
+        for (VirtualMachine vm : nwGroup.getVmList()) //I scroll through the VMs and if any have HT to 0 I update the value of highTroughputToBeConsidered
+        	//changes 3.1.5
+        	vm.setHighThroughputCore(cluster.getInputConfiguration().getDefaultHighThroughput());
+        	if(cluster.getInputConfiguration().getDefaultHighThroughput() ==0) {
+        		highTroughputToBeConsidered = true;
         	}
+//        	if (vm.gethigetHighThroughputCore() == 0) {
+//                highTroughputToBeConsidered = true;
+//        	}
     		
 
         // I order VMs from largest to smallest by number of cores to optimize the space occupied inside the sockets
         nwGroup.setVmList(nwGroup.getVmList().stream().sorted((o1, o2) ->
-                (int) (o2.getCore() + (o2.getHighThroughputCore() == -1 ? 0 : o2.getHighThroughputCore()))
-                        - (int) (o1.getCore() + (o1.getHighThroughputCore() == -1 ? 0 : o1.getHighThroughputCore()))).collect(Collectors.toList()));
-/*
+                (int) (o2.getCore() + (cluster.getInputConfiguration().getDefaultHighThroughput() == -1 ? 0 : cluster.getInputConfiguration().getDefaultHighThroughput()))
+                        - (int) (o1.getCore() + (cluster.getInputConfiguration().getDefaultHighThroughput() == -1 ? 0 : cluster.getInputConfiguration().getDefaultHighThroughput()))).collect(Collectors.toList()));
 
-        nwGroup.setVmList(nwGroup.getVmList().stream().sorted((o1, o2) ->
-                ((int) (o2.getCore() + (o2.getHighThroughputCore() == -1 ? 0 : o2.getHighThroughputCore())))
-                        .compareTo(o1.getCore() + (o1.getHighThroughputCore() == -1 ? 0 : o1.getHighThroughputCore())).collect(Collectors.toList()));
-
-*/
-
-
-        /*ash end*/
 
         List<VirtualMachine> toPlaceList = Utils.copyVmList(nwGroup.getVmList());
         for (SocketBlade s : blade.getSocketList()) {
@@ -131,7 +136,8 @@ public class PlacementSingleSocket extends Placement {
                                                                         core, e parte dell'HT*/
                         vm.setCore(0.0); //I core della VM da piazzare ora sono 0
                         coresAvailableInThisSocket -= vm.getCore();
-                        vm.setHighThroughputCore((int) (vm.getHighThroughputCore() - coresAvailableInThisSocket)); //L'HT della VM da piazzare viene aggiornato
+                        cluster.getInputConfiguration().setDefaultHighThroughput((int) (cluster.getInputConfiguration().getDefaultHighThroughput() - coresAvailableInThisSocket));
+                        //vm.setHighThroughputCore((int) (vm.getHighThroughputCore() - coresAvailableInThisSocket)); //L'HT della VM da piazzare viene aggiornato
                     } else { //Se i core della VM sono più dei core disponibili, allora devo piazzare in questo socket parte dei core
                         vm.setCore(vm.getCore() - coresAvailableInThisSocket);
                     }
@@ -176,7 +182,9 @@ public class PlacementSingleSocket extends Placement {
 //            logger.debug("Pass to new Blade for AAF: " + nwGroup.getVmListAsString());
             return false;
         }
+         }
         return true;
+        
     }
 
     private void placeVms(List<VirtualMachine> vmList, Blade blade) {
@@ -191,7 +199,7 @@ public class PlacementSingleSocket extends Placement {
 
             for (VirtualMachine vm : toPlaceList) {
 
-            		if (vm.getHighThroughputCore() == 0)
+            		if (cluster.getInputConfiguration().getDefaultHighThroughput() == 0)
                         blade.setHighThroughputCoreZero(true);
                     if (vm.getTotalCores() > s.getEffectiveCore()) { //Only case where it can be divided by socket
                     	
@@ -210,7 +218,7 @@ public class PlacementSingleSocket extends Placement {
                             vm.setCore(0.0); //VM cores to be placed are now 0
 
                             //Note: in this point high throughput will always be positive or 0
-                            vm.setHighThroughputCore((int) (vm.getHighThroughputCore() - coreAvailable)); //The High Throuhgput of the VM to be placed is updated
+                            cluster.getInputConfiguration().setDefaultHighThroughput((int) (cluster.getInputConfiguration().getDefaultHighThroughput()  - coreAvailable)); //The High Throuhgput of the VM to be placed is updated
                         } else {
                             vm.setCore(vm.getCore() - coreAvailable); //If the VM cores are more than the available cores, then I have to place part of the cores in this socket
                         }
@@ -226,10 +234,10 @@ public class PlacementSingleSocket extends Placement {
                     }
             	
             
-            
+            }
             	for (VirtualMachine vm1 : placedList) //Rimuovo le vm inserite dalla lista prima di passare al prossimo socket
                     toPlaceList.remove(vm1);
-           }
+           //}
         }
     }
    

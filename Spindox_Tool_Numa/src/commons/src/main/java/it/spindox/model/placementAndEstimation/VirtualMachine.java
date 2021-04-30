@@ -86,7 +86,7 @@ public class VirtualMachine implements Comparator {
 		/* Ashutosh : new flag storageBufferPercentage */
         Integer hardDiskTemp = (int) Math.round(temp);
         hardDisk = hardDiskTemp+((hardDiskTemp*inputConfig.getStorageBufferPercentage())/100);
-        highThroughputCore = vbom.getHighThroughputVswitchResources();
+        //highThroughputCore = vbom.getHighThroughputVswitchResources();
     }
 
     public VirtualMachine(int instance, int clone) {
@@ -176,9 +176,12 @@ public class VirtualMachine implements Comparator {
         return r;
     }
 
-
+//
+//    public Double getTotalCores() {
+//        return core + (highThroughputCore == -1 ? 0 : highThroughputCore);
+//    }
     public Double getTotalCores() {
-        return core + (highThroughputCore == -1 ? 0 : highThroughputCore);
+        return core ;
     }
 
     public Double getRam() {

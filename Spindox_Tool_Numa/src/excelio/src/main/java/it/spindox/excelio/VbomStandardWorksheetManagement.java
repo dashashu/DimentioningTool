@@ -99,14 +99,18 @@ public class VbomStandardWorksheetManagement extends VbomWorksheetManagement {
         int columnIndex = 0;
 
         try {
-            // VNF Name
+        	//changes 3.1.5
+        	//request type - cell 0
+        	Cell cella0 = row.getCell(0);
+        	vBom.setRqstType(cella0.getStringCellValue().trim());
+            // VNF Name   - cell 1
             columnIndex++;
-            vBom.setVnfName(Util.readStringNoSpaceFromCell(row, 0, VBomConstants.VNF_NAME));
+            vBom.setVnfName(Util.readStringNoSpaceFromCell(row, 1, VBomConstants.VNF_NAME));
 
             // Non generalizzato perche in questo caso si controlla che i valori letti non siano duplicati
-            // VM Type Name
+            // VM Type Name   - cell 2
             columnIndex++;
-            Cell cella = row.getCell(1);
+            Cell cella = row.getCell(2);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 if (!cella.toString().trim().contains(" ")) {
                     vBom.setVmTypeName(cella.getStringCellValue().trim());
@@ -123,10 +127,17 @@ public class VbomStandardWorksheetManagement extends VbomWorksheetManagement {
             } else {
                 throw new IllegalEmptyCellException("Illegal empty cell found at row " + (row.getRowNum() + 1) + " column " + 2 + " (VM Type Name).");
             }
-
-            // Self Constraints
+          //Set site name  - cell 3
+            Cell cella_Site = row.getCell(3);
+        	String[] splittedSites = splitStringByCommaOrSemicolon(cella_Site.getStringCellValue().trim());
+        	vBom.setSiteList(new ArrayList<>(Arrays.asList(splittedSites)));
+            //NSX-T  - cell 4
+        	Cell cell_nsx = row.getCell(4);
+        	vBom.setNsxt(cell_nsx.getStringCellValue().trim());
+            
+            // Self Constraints  - cell 5
             columnIndex++;
-            cella = row.getCell(2);
+            cella = row.getCell(5);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 if (cella.getStringCellValue().equalsIgnoreCase("AFF"))
                     vBom.setSelfConstraint(Affinity.AFF);
@@ -143,7 +154,7 @@ public class VbomStandardWorksheetManagement extends VbomWorksheetManagement {
 
             // External Constraints
             columnIndex++;
-            cella = row.getCell(3);
+            cella = row.getCell(6);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 String externalConstraint = cella.getStringCellValue();
                 try {
@@ -160,10 +171,10 @@ public class VbomStandardWorksheetManagement extends VbomWorksheetManagement {
             columnIndex++;
             columnIndex++;
             // High throughput vSwitch resources
-            vBom.setHighThroughputVswitchResources(Util.readNumberFromCell(row, 5, 0, VBomConstants.HIGH_THROUGHPUT));
+            //vBom.setHighThroughputVswitchResources(Util.readNumberFromCell(row, 5, 0, VBomConstants.HIGH_THROUGHPUT));
 
             columnIndex++;
-            vBom.setBlockSize(Util.readBlockSizeFromCell(row, 6, VBomConstants.BLOCK_SIZE));
+            vBom.setBlockSize(Util.readBlockSizeFromCell(row, 8, VBomConstants.BLOCK_SIZE));
         } catch (Exception e) {
             logger.error("Unexpected error found at row " + (row.getRowNum() + 1) + " column " + columnIndex + ": " + e.getMessage());
             throw e;

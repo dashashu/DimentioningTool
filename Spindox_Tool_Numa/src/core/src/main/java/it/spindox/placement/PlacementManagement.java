@@ -62,8 +62,8 @@ public class PlacementManagement {
         //NUMA here all the aff/aaf/ams value must get set: debug it for value
         try {
             List<String> sites = new ArrayList<String>();
-          //check whats hapening here
             vbomManagement.getYearList().forEach(year -> {
+            	
                 year.getSiteList().forEach(site -> {
                     try {
                         sites.add(site.getSiteName());

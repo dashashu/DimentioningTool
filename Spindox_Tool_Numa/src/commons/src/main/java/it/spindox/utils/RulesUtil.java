@@ -58,9 +58,9 @@ public class RulesUtil {
 		case PreProcessingConstants.VM_TYPE_NAME:
 			vBom2.setVmTypeName(applyRuleString(vBom, rule, null, vBom2.getVmTypeName()));
 			break;
-		case PreProcessingConstants.HIGH_THROUGHPUT:
-			vBom2.setHighThroughputVswitchResources(applyRuleInteger(vBom, rule, null, vBom2.getHighThroughputVswitchResources()));
-			break;
+//		case PreProcessingConstants.HIGH_THROUGHPUT:
+//			vBom2.setHighThroughputVswitchResources(applyRuleInteger(vBom, rule, null, vBom2.getHighThroughputVswitchResources()));
+//			break;
 		case PreProcessingConstants.BLOCK_SIZE:
 			vBom2.setBlockSize(applyRuleInteger(vBom, rule, null, vBom2.getBlockSize()));
 			break;
@@ -164,9 +164,9 @@ public class RulesUtil {
 		case PreProcessingConstants.VM_TYPE_NAME:
 			success = evaluateClusterWithString(rule, vBom.getVmTypeName());
 			break;
-		case PreProcessingConstants.VM_WORKLOAD_TYPE:
-			success = evaluateClusterWithString(rule, vBom.getVmWorkloadType());
-			break;
+//		case PreProcessingConstants.VM_WORKLOAD_TYPE:
+//			success = evaluateClusterWithString(rule, vBom.getVmWorkloadType());
+//			break;
 		case PreProcessingConstants.VNF_PER_SITE:
 			boolean tempSuccess = false;
 			for(int i=0; i<vBom.getvBomYearList().size(); i++) {
@@ -454,12 +454,12 @@ public class RulesUtil {
 			return vBom.getVnfName();
 		case PreProcessingConstants.VM_TYPE_NAME:
 			return vBom.getVmTypeName();
-		case PreProcessingConstants.HIGH_THROUGHPUT:
-			return vBom.getHighThroughputVswitchResources();
+//		case PreProcessingConstants.HIGH_THROUGHPUT:
+//			return vBom.getHighThroughputVswitchResources();
 		case PreProcessingConstants.BLOCK_SIZE:
 			return vBom.getBlockSize();
-		case PreProcessingConstants.VM_WORKLOAD_TYPE:
-			return vBom.getVmWorkloadType();
+//		case PreProcessingConstants.VM_WORKLOAD_TYPE:
+//			return vBom.getVmWorkloadType();
 		case PreProcessingConstants.VNF_PER_SITE:
 			return year.getVnfPerSite();
 		case PreProcessingConstants.VNF_PER_INSTANCE:
@@ -523,11 +523,11 @@ public class RulesUtil {
 		VBomGroup tempGroup = new VBomGroup();
 		List<VBom> foundationGroup = new ArrayList<VBom>();
 		
-		for(VBom temp:vBomCustomerList) {
-			if(temp.getVmWorkloadType().equals(ConfigurationManagement.getVbomConfiguration().getString("foundationWorkloadType"))) {
-				foundationGroup.add(temp);
-			}
-		}
+//		for(VBom temp:vBomCustomerList) {
+//			if(temp.getVmWorkloadType().equals(ConfigurationManagement.getVbomConfiguration().getString("foundationWorkloadType"))) {
+//				foundationGroup.add(temp);
+//			}
+//		}
 		
 		for(VBom temp:foundationGroup)
 			vBomCustomerList.remove(temp);

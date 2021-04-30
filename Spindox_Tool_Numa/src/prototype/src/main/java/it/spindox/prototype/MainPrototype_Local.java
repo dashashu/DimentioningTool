@@ -1,14 +1,5 @@
 package prototype.src.main.java.it.spindox.prototype;
 
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-
-
-
-import java.io.File;
-import java.net.URISyntaxException;
-
-
 public class MainPrototype_Local {
 	/*    private static final Logger logger = LogManager.getLogger(MainPrototype_Local.class);
 

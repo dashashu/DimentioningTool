@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import commons.src.main.java.it.spindox.model.configurations.InputConfiguration;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Site;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.VirtualMachine;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Year;
@@ -13,6 +14,7 @@ import commons.src.main.java.it.spindox.model.vbom.VBom;
 import commons.src.main.java.it.spindox.model.vbom.VBomYear;
 
 public class Utils {
+	static InputConfiguration inputconfig = new InputConfiguration();
 	public static List<Year> setup(List<VBom> vBom)
 	{
 		List<Year> years = new ArrayList<Year>();
@@ -88,9 +90,9 @@ public class Utils {
 			vm.setAms(tmp.isAms());
 			vm.setCore(tmp.getCore());
 			vm.setHardDisk(tmp.getHardDisk());
-			vm.setHighThroughputCore(tmp.getHighThroughputCore());
+			vm.setHighThroughputCore(inputconfig.getDefaultHighThroughput());//(tmp.getHighThroughputCore());
 			vm.setRam(tmp.getRam());
-
+	
 			b.add(vm);
 		}
 		

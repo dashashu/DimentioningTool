@@ -97,8 +97,9 @@ public abstract class Placement {
         //VMGroup vmGroupnuma = new VMGroup();
 
         for (VirtualMachine vm : vmList) {
+        	//Ashutosh - Changes 3.1.5
+        	vm.setHighThroughputCore(cluster.getInputConfiguration().getDefaultHighThroughput());
         	//Ashutosh : NUMA
-        	
     		if(vm.isNumaflag()) { 
     			VMGroup vmGroupnuma = new VMGroup();
     			vmGroupnuma.getVmList().add(vm);
@@ -297,6 +298,7 @@ public abstract class Placement {
 
         List<Blade> tmpSortedBladeList = new ArrayList<>(sortedBladeList);
         sortedBladeList.sort((o1, o2) -> {
+
             int cmp;
 
             cmp = Double.compare(o2.getCoreUsed(), o1.getCoreUsed());

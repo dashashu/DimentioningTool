@@ -1,5 +1,6 @@
 package core.src.main.java.it.spindox.placement;
 
+import commons.src.main.java.it.spindox.model.configurations.InputConfiguration;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Blade;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.Site;
 import commons.src.main.java.it.spindox.model.placementAndEstimation.SocketBlade;
@@ -30,7 +31,7 @@ public class PlacementExtraSocket extends Placement {
 
     //private static final Logger logger = (Logger) LogManager.getLogger(Placement.class);
 	final static Logger logger = Logger.getLogger(Placement.class);
-
+	InputConfiguration inputconfig = new InputConfiguration();
 
     public PlacementExtraSocket(Site site, Cluster cluster) throws InconsistentConstraintsException, NotEnoughResourceAvailableException {
 
@@ -152,7 +153,7 @@ public class PlacementExtraSocket extends Placement {
         }}
          else {
         for (VirtualMachine vm : nwGroup.getVmList()) {
-            if (vm.getHighThroughputCore() == 0)
+            if (vm.getHighThroughputCore()== 0)
                 zero = true;
         }
         
@@ -198,7 +199,7 @@ public class PlacementExtraSocket extends Placement {
             		placeNumaVm(vm, blade);
             	}else
             		placeVm(vm, blade);
-                if (vm.getHighThroughputCore() == 0)
+                if (inputconfig.getDefaultHighThroughput() == 0)
                     blade.setHighThroughputCoreZero(true);
             }
 
@@ -248,7 +249,7 @@ public class PlacementExtraSocket extends Placement {
             List<VirtualMachine> vmList = nwGroup.getVmList();
             for (VirtualMachine vm : vmList) {
                 placeVm(vm, blade);
-                if (vm.getHighThroughputCore() == 0)
+                if (inputconfig.getDefaultHighThroughput() == 0)
                     blade.setHighThroughputCoreZero(true);
             }
 

@@ -98,13 +98,17 @@ public class VbomCustomerWorksheetManagement extends VbomWorksheetManagement {
         int columnIndex = 0;
 
         try {
-            // VNF Name
+        	//changes 3.1.5
+        	//request type - cell 0
+        	Cell cella0 = row.getCell(0);
+        	vBomCustomer.setRqstType(cella0.getStringCellValue().trim());
+            // VNF Name  - cell 1
             columnIndex++;
-            vBomCustomer.setVnfName(Util.readStringNoSpaceFromCell(row, 0, VBomConstants.VNF_NAME));
+            vBomCustomer.setVnfName(Util.readStringNoSpaceFromCell(row, 1, VBomConstants.VNF_NAME));
 
-            // VM Type Name
+            // VM Type Name  - cell 2
             columnIndex++;
-            Cell cella = row.getCell(1);
+            Cell cella = row.getCell(2);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 if (!cella.toString().trim().contains(" ")) {
                     vBomCustomer.setVmTypeName(cella.getStringCellValue().trim());
@@ -121,10 +125,16 @@ public class VbomCustomerWorksheetManagement extends VbomWorksheetManagement {
             } else {
                 throw new IllegalEmptyCellException("Illegal empty cell found at row " + (row.getRowNum() + 1) + " column " + 2 + " (VM Type Name).");
             }
-
-            // AFFINITY RULES - INTRA VNF
+            //Set site name  - cell 3
+            Cell cella_Site = row.getCell(3);
+        	String[] splittedSites = splitStringByCommaOrSemicolon(cella_Site.getStringCellValue().trim());
+        	vBomCustomer.setSiteList(new ArrayList<>(Arrays.asList(splittedSites)));
+            //NSX-T  - cell 4
+        	Cell cell_nsx = row.getCell(4);
+        	vBomCustomer.setNsxt(cell_nsx.getStringCellValue().trim());
+            // AFFINITY RULES - INTRA VNF  - cell 5
             columnIndex++;
-            cella = row.getCell(2);
+            cella = row.getCell(5);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 if (cella.getStringCellValue().equalsIgnoreCase("AFF"))
                     vBomCustomer.setSelfConstraint(Affinity.AFF);
@@ -138,9 +148,9 @@ public class VbomCustomerWorksheetManagement extends VbomWorksheetManagement {
             } else
                 vBomCustomer.setSelfConstraint(null);
 
-            // AFFINITY RULES - INTER VNF
+            // AFFINITY RULES - INTER VNF  - cell 6
             columnIndex++;
-            cella = row.getCell(3);
+            cella = row.getCell(6);
             if (cella != null && !cella.toString().equalsIgnoreCase("")) {
                 String externalConstraint = cella.getStringCellValue();
                 try {
@@ -153,14 +163,14 @@ public class VbomCustomerWorksheetManagement extends VbomWorksheetManagement {
                 }
             } // else, the lists are empty
 
-            vBomCustomer.setVmWorkloadType(Util.readMandatoryStringFromCell(row, 4, VBomConstants.VM_WORKLOAD_TYPE));
+            //vBomCustomer.setVmWorkloadType(Util.readMandatoryStringFromCell(row, 4, VBomConstants.VM_WORKLOAD_TYPE));
             
             columnIndex++;
             
-            vBomCustomer.setHighThroughputVswitchResources(Util.readNumberFromCell(row, 5, inputConfig.getDefaultHighThroughput(), VBomConstants.HIGH_THROUGHPUT));
-
+            //vBomCustomer.setHighThroughputVswitchResources(Util.readNumberFromCell(row, 5, inputConfig.getDefaultHighThroughput(), VBomConstants.HIGH_THROUGHPUT));
+            
             columnIndex++;
-            vBomCustomer.setBlockSize(Util.readNumberFromCell(row, 6, inputConfig.getDefaultBlockSize(), VBomConstants.BLOCK_SIZE));
+            vBomCustomer.setBlockSize(Util.readNumberFromCell(row, 8, inputConfig.getDefaultBlockSize(), VBomConstants.BLOCK_SIZE));
         } catch (Exception e) {
             logger.error("Unexpected error found at row " + (row.getRowNum() + 1) + " column " + columnIndex + ": " + e.getMessage());
             throw e;

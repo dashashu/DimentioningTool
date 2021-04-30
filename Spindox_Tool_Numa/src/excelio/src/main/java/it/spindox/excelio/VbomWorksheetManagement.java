@@ -154,7 +154,8 @@ public abstract class VbomWorksheetManagement extends WorksheetManagement {
         try {
             int index = startingColumn;
             // siteList <=> Name of sites
-            Cell cella = row.getCell(index++);
+            //Cell cella = row.getCell(index++);
+            Cell cella = row.getCell(3); //As site at column 3 is common to al years
             String siti = "";
             
             if((defaultSiteName != null) && (!defaultSiteName.equals("")))
@@ -169,6 +170,7 @@ public abstract class VbomWorksheetManagement extends WorksheetManagement {
             vbyr.setSiteList(new ArrayList<>(Arrays.asList(splittedSites)));
             
             //VNF per site
+            //vbyr.setVnfPerSite(Util.readNumberFromCell(row, index++, 0, VBomConstants.VNF_INSTANCES_NUMBER));
             vbyr.setVnfPerSite(Util.readNumberFromCell(row, index++, 0, VBomConstants.VNF_INSTANCES_NUMBER));
             
             //Number of VMs per type and per VNF instance
@@ -204,7 +206,8 @@ public abstract class VbomWorksheetManagement extends WorksheetManagement {
             
             //Number of vCPU (a.k.a. cores) per VM
             vbyr.setNumberOfVcpuPerVm(Util.readFloatNumberFromCell(row, index++, 0.0, VBomConstants.VM_CPU_NUMBER));
-            
+            //'RX/TX' CPU INCLUDED IN vCPU  Count
+            index++; // skipping a column as this column is not required to read.
             //RAM (GB) per VM
             vbyr.setRamPerVmInGB(Util.readNumberFromCell(row, index++, 0, VBomConstants.VM_RAM));
             

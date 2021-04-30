@@ -70,12 +70,12 @@ public class OutputExcelManagement {
 	static DateFormat dateFormat = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
 	static Date date = new Date();
 	static String datestring =dateFormat.format(date);
-	//System.out.println(dateFormat.format(date)); //2016/11/16 12:08:43
+	
 	
 	public OutputExcelManagement() {
 		
 		outputWorkbook = new XSSFWorkbook();
-		  //filename = "C://Users//DashA2//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Output.xlsx";		
+		  //filename = "C://Users//DashA2//OneDrive - Vodafone Group//Desktop//Spindox_Tool_release_v3.1.0//Dimensioning Tool Release V3.1.1//Dimensioning Tool Release V3.1.4//Output.xlsx";		
 		  filename = "./Output.xlsx";
 	}
 
@@ -170,7 +170,7 @@ public class OutputExcelManagement {
 							tempRow.add(0);
 						} else {
 							String prevYear = yearNames.get(currentYearIndex - 1);
-							System.out.println(prevYear);
+							
 							
 							//Ashutosh: 28/08/2019:  adding new flag : BladeBufferPercentage
 							int yearvalue = cumulativeBladeClusters.get(i).getValueForYears().get(prevYear) == null ? 0

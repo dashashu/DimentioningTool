@@ -7,43 +7,55 @@ import java.util.List;
 
 public class VBom {
     private int rowNumber; // row number in the excel file
+    private String rqstType;
     private String vnfName;
     private String vmTypeName;
+    
+    //Changes V3.1.5
+    private List<String> siteList;
+    private String nsxt;
     private String vmWorkloadType; //only for vbomcustomer
     private Affinity selfConstraint;
     private List<String> externalConstraintAffinity;
     private List<String> externalConstraintAntiAffinity;
     // private String vmRoleAndFunctionDescription; // for human reading only
-    private int highThroughputVswitchResources; // coresPerVm
+    //private int highThroughputVswitchResources; // coresPerVm
+    private String verticalDomainOwner;
     private int blockSize;
     private List<VBomYear> vBomYearList;
 
+
     public VBom() {
         rowNumber = -1;
+        rqstType = "";
         vnfName = "";
         vmTypeName = "";
+        nsxt = "";
         vmWorkloadType = "";
         selfConstraint = null;
-        highThroughputVswitchResources = 0;
+        //highThroughputVswitchResources = 0;
         externalConstraintAffinity = new ArrayList<>();
         externalConstraintAntiAffinity = new ArrayList<>();
         vBomYearList = new ArrayList<>();
         blockSize = 0;
         vmWorkloadType = "";
+        siteList = new ArrayList<>();
+        verticalDomainOwner = "";
     }
     
     public VBom(VBom vBom) {
     	this.rowNumber = vBom.getRowNumber();
     	this.vnfName = vBom.getVnfName();
     	this.vmTypeName = vBom.getVmTypeName();
-    	this.vmWorkloadType = vBom.getVmWorkloadType();
+    	//this.vmWorkloadType = vBom.getVmWorkloadType();
     	this.selfConstraint = vBom.getSelfConstraint();
     	this.externalConstraintAffinity = vBom.getExternalConstraintAffinity();
     	this.externalConstraintAntiAffinity = vBom.getExternalConstraintAntiAffinity();
-    	this.highThroughputVswitchResources = vBom.getHighThroughputVswitchResources();
+    	//this.highThroughputVswitchResources = vBom.getHighThroughputVswitchResources();
     	this.blockSize = vBom.getBlockSize();
     	this.vBomYearList = new ArrayList<VBomYear>();
     	this.vBomYearList.addAll(vBom.getvBomYearList());
+    	this.verticalDomainOwner = vBom.getVerticalDomainOwner();
     }
     
     public String getCompleteName() {
@@ -98,13 +110,13 @@ public class VBom {
         this.externalConstraintAntiAffinity = externalConstraintAntiAffinity;
     }
 
-    public int getHighThroughputVswitchResources() {
-        return highThroughputVswitchResources;
-    }
-
-    public void setHighThroughputVswitchResources(int highThroughputVswitchResources) {
-        this.highThroughputVswitchResources = highThroughputVswitchResources;
-    }
+//    public int getHighThroughputVswitchResources() {
+//        return highThroughputVswitchResources;
+//    }
+//
+//    public void setHighThroughputVswitchResources(int highThroughputVswitchResources) {
+//        this.highThroughputVswitchResources = highThroughputVswitchResources;
+//    }
 
     public List<VBomYear> getvBomYearList() {
         return vBomYearList;
@@ -131,7 +143,40 @@ public class VBom {
         this.vmWorkloadType = vmWorkloadType;
     }
 
-    @Override
+    public List<String> getSiteList() {
+		return siteList;
+	}
+
+	public void setSiteList(List<String> siteList) {
+		this.siteList = siteList;
+	}
+
+	public String getRqstType() {
+		return rqstType;
+	}
+
+	public void setRqstType(String rqstType) {
+		this.rqstType = rqstType;
+	}
+
+	public String getNsxt() {
+		return nsxt;
+	}
+
+	public void setNsxt(String nsxt) {
+		this.nsxt = nsxt;
+	}
+
+	public String getVerticalDomainOwner() {
+		return verticalDomainOwner;
+	}
+
+	public void setVerticalDomainOwner(String verticalDomainOwner) {
+		this.verticalDomainOwner = verticalDomainOwner;
+	}
+
+
+	@Override
     public String toString() {
         return "VBom{" +
                 "rowNumber=" + rowNumber +
@@ -140,9 +185,10 @@ public class VBom {
                 ", selfConstraint=" + selfConstraint +
                 ", externalConstraintAffinity=" + externalConstraintAffinity.toString() + '\'' +
                 ", externalConstraintAntiAffinity=" + externalConstraintAntiAffinity.toString() + '\'' +
-                ", highThroughputVswitchResources='" + highThroughputVswitchResources + '\'' +
+               // ", highThroughputVswitchResources='" + highThroughputVswitchResources + '\'' +
                 ", vmWorkloadType='" + vmWorkloadType + '\'' +
                 ", vBomYearList=" + vBomYearList +
+                ", siteList='" + siteList.toString()+
                 '}';
     }
 }
