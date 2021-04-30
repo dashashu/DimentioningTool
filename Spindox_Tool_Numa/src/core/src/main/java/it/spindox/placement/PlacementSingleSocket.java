@@ -106,8 +106,6 @@ public class PlacementSingleSocket extends Placement {
         boolean highTroughputToBeConsidered = blade.isHighThroughputCoreZero(); //L'HT è 0 in almeno una VM? Lo inizializziamo considerando il valore indicato dalla blade
 
         for (VirtualMachine vm : nwGroup.getVmList()) //I scroll through the VMs and if any have HT to 0 I update the value of highTroughputToBeConsidered
-        	//changes 3.1.5
-        	vm.setHighThroughputCore(cluster.getInputConfiguration().getDefaultHighThroughput());
         	if(cluster.getInputConfiguration().getDefaultHighThroughput() ==0) {
         		highTroughputToBeConsidered = true;
         	}
@@ -137,7 +135,6 @@ public class PlacementSingleSocket extends Placement {
                         vm.setCore(0.0); //I core della VM da piazzare ora sono 0
                         coresAvailableInThisSocket -= vm.getCore();
                         cluster.getInputConfiguration().setDefaultHighThroughput((int) (cluster.getInputConfiguration().getDefaultHighThroughput() - coresAvailableInThisSocket));
-                        //vm.setHighThroughputCore((int) (vm.getHighThroughputCore() - coresAvailableInThisSocket)); //L'HT della VM da piazzare viene aggiornato
                     } else { //Se i core della VM sono più dei core disponibili, allora devo piazzare in questo socket parte dei core
                         vm.setCore(vm.getCore() - coresAvailableInThisSocket);
                     }

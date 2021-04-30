@@ -137,21 +137,21 @@ public class PlacementExtraSocket extends Placement {
     protected boolean canAllocate(Blade blade, VMGroup nwGroup) {
         boolean zero = false;
         Double totalCores = nwGroup.getCore();
-        //Ashutosh Numa blade check
-        if(nwGroup.getVmList().stream().anyMatch(vm -> vm.isNumaflag())) {	
-        for(VirtualMachine vm: nwGroup.getVmList()) {      
-        	if((Double.compare((blade.getSocketList().get(0).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(0).getRam()),(vm.getRam()))>=0) )
-        	|| (Double.compare((blade.getSocketList().get(1).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(1).getRam()),(vm.getRam()))>=0))){ 
-        	
-        		return true;
-        	}else {
-        		logger.error(" Numa VM cannot be consider for placement for the VM " + nwGroup.getVmList().get(0).getVmName());
-        		System.exit(0);
-        		return false;
-        		
-        	}   	
-        }}
-         else {
+        //Ashutosh Numa blade check- Extra socket flow will not have NUMA
+//        if(nwGroup.getVmList().stream().anyMatch(vm -> vm.isNumaflag())) {	
+//        for(VirtualMachine vm: nwGroup.getVmList()) {      
+//        	if((Double.compare((blade.getSocketList().get(0).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(0).getRam()),(vm.getRam()))>=0) )
+//        	|| (Double.compare((blade.getSocketList().get(1).getEffectiveCore()),(vm.getCore()))>=0 && (Double.compare((blade.getSocketList().get(1).getRam()),(vm.getRam()))>=0))){ 
+//        	
+//        		return true;
+//        	}else {
+//        		logger.error(" Numa VM cannot be consider for placement for the VM " + nwGroup.getVmList().get(0).getVmName());
+//        		System.exit(0);
+//        		return false;
+//        		
+//        	}   	
+//        }}
+//         else {
         for (VirtualMachine vm : nwGroup.getVmList()) {
             if (vm.getHighThroughputCore()== 0)
                 zero = true;
@@ -182,7 +182,7 @@ public class PlacementExtraSocket extends Placement {
 //            logger.debug("Pass to new Blade for AAF: " + nwGroup.getVmListAsString());
             return false;
         }
-        }
+//        }
 		return true;
     }
 

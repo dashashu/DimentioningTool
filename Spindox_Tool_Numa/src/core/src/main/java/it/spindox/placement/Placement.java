@@ -74,6 +74,7 @@ public abstract class Placement {
     protected void checkConsistencyConstraints()
             throws InconsistentConstraintsException {
         for (VirtualMachine vm : site.getVmList()) {
+        	vm.setHighThroughputCore(cluster.getInputConfiguration().getDefaultHighThroughput());
             List<VirtualMachine> aaf = vm.getAaf();
             List<VirtualMachine> aff = vm.getAff();
             for (VirtualMachine vma : aaf) {
@@ -97,8 +98,7 @@ public abstract class Placement {
         //VMGroup vmGroupnuma = new VMGroup();
 
         for (VirtualMachine vm : vmList) {
-        	//Ashutosh - Changes 3.1.5
-        	vm.setHighThroughputCore(cluster.getInputConfiguration().getDefaultHighThroughput());
+        	
         	//Ashutosh : NUMA
     		if(vm.isNumaflag()) { 
     			VMGroup vmGroupnuma = new VMGroup();

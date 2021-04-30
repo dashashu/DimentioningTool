@@ -201,8 +201,9 @@ public class ServiceLayer {
         }
 
         Set<String> sites = new HashSet<String>();
-
+        
         for (Cluster cluster : clusterList) {
+        	System.out.println("Extra Soxket is "+ inputConfig.isExtrasocketEnabled());
             logger.info("***************************************************");
             logger.info("\tPLACEMENT " + cluster.getSheetLabel());
             logger.info("***************************************************");
