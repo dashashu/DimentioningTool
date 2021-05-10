@@ -195,11 +195,11 @@ public class PlacementExtraSocket extends Placement {
             List<VirtualMachine> vmList = nwGroup.getVmList();
             for (VirtualMachine vm : vmList) {
                 //Ashutosh NUMA
-            	if(vm.isNumaflag()) {
-            		placeNumaVm(vm, blade);
-            	}else
+//            	if(vm.isNumaflag()) {
+//            		placeNumaVm(vm, blade);
+//            	}else
             		placeVm(vm, blade);
-                if (inputconfig.getDefaultHighThroughput() == 0)
+                if (vm.getHighThroughputCore() == 0)
                     blade.setHighThroughputCoreZero(true);
             }
 
@@ -249,8 +249,9 @@ public class PlacementExtraSocket extends Placement {
             List<VirtualMachine> vmList = nwGroup.getVmList();
             for (VirtualMachine vm : vmList) {
                 placeVm(vm, blade);
-                if (inputconfig.getDefaultHighThroughput() == 0)
+                if (vm.getHighThroughputCore() == 0)
                     blade.setHighThroughputCoreZero(true);
+                	System.out.println("High: "+(blade.isHighThroughputCoreZero()));
             }
 
             blade.getVmGroupAssignedToThisBladeList().add(nwGroup);

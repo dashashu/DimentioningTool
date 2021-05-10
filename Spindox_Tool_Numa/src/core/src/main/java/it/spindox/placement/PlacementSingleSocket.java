@@ -106,12 +106,13 @@ public class PlacementSingleSocket extends Placement {
         boolean highTroughputToBeConsidered = blade.isHighThroughputCoreZero(); //L'HT è 0 in almeno una VM? Lo inizializziamo considerando il valore indicato dalla blade
 
         for (VirtualMachine vm : nwGroup.getVmList()) //I scroll through the VMs and if any have HT to 0 I update the value of highTroughputToBeConsidered
-        	if(cluster.getInputConfiguration().getDefaultHighThroughput() ==0) {
-        		highTroughputToBeConsidered = true;
+			/*
+			 * if(cluster.getInputConfiguration().getDefaultHighThroughput() ==0) {
+			 * highTroughputToBeConsidered = true; }
+			 */
+        	if (vm.getHighThroughputCore() == 0) {
+                highTroughputToBeConsidered = true;
         	}
-//        	if (vm.gethigetHighThroughputCore() == 0) {
-//                highTroughputToBeConsidered = true;
-//        	}
     		
 
         // I order VMs from largest to smallest by number of cores to optimize the space occupied inside the sockets
@@ -195,9 +196,10 @@ public class PlacementSingleSocket extends Placement {
             List<VirtualMachine> placedList = new ArrayList<VirtualMachine>();
 
             for (VirtualMachine vm : toPlaceList) {
-
-            		if (cluster.getInputConfiguration().getDefaultHighThroughput() == 0)
-                        blade.setHighThroughputCoreZero(true);
+//            		if (cluster.getInputConfiguration().getDefaultHighThroughput() == 0)
+//                        blade.setHighThroughputCoreZero(true);
+            		if (vm.getHighThroughputCore()== 0)
+            			blade.setHighThroughputCoreZero(true);
                     if (vm.getTotalCores() > s.getEffectiveCore()) { //Only case where it can be divided by socket
                     	
                         logger.warn("The Virtual Machine " + vm.getVmName() + " have " + vm.getTotalCores() + ". Since a socket can contain max " + s.getCore() + " cores, the VM will be split between sockets.");

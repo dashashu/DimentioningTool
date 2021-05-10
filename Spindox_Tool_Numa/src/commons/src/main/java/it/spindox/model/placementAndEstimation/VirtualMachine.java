@@ -177,12 +177,12 @@ public class VirtualMachine implements Comparator {
     }
 
 //
-//    public Double getTotalCores() {
-//        return core + (highThroughputCore == -1 ? 0 : highThroughputCore);
-//    }
     public Double getTotalCores() {
-        return core ;
+        return core + (highThroughputCore == -1 ? 0 : highThroughputCore);
     }
+//    public Double getTotalCores() {
+//        return core ;
+//    }
 
     public Double getRam() {
         return ram;

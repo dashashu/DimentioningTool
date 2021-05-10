@@ -495,17 +495,17 @@ public abstract class Placement {
                 if (!emptySocket)
                     continue;
             }
-            //new NUMa logic : VM level
-            if (bladeToCompress.getNumaBlade()=='Y') {
-                boolean emptySocket = false;
-
-                for (SocketBlade sb : bladeToCompress.getSocketList())
-                    if (sb.getVirtualMachineCoreOccupancy().isEmpty())
-                        emptySocket = true;
-
-                if (!emptySocket)
-                    continue;
-            }
+//            //new NUMa logic : VM level
+//            if (bladeToCompress.getNumaBlade()=='Y') {
+//                boolean emptySocket = false;
+//
+//                for (SocketBlade sb : bladeToCompress.getSocketList())
+//                    if (sb.getVirtualMachineCoreOccupancy().isEmpty())
+//                        emptySocket = true;
+//
+//                if (!emptySocket)
+//                    continue;
+//            }
 
             List<Blade> tmpBladeList = new ArrayList<>(bladeList);
             bladeList.sort((o1, o2) -> {
@@ -528,7 +528,7 @@ public abstract class Placement {
             for (Blade analyzeBlade : bladeList) {
 
                 if (!analyzeBlade.equals(bladeToCompress)) {
-                	if(analyzeBlade.getNumaBlade()!='Y' && bladeToCompress.getNumaBlade()!='Y') {
+                	//if(analyzeBlade.getNumaBlade()!='Y' && bladeToCompress.getNumaBlade()!='Y') {
                     VMGroup tryToPutGroup = new VMGroup();
                     List<VirtualMachine> vmInAnalyzeBlade = new ArrayList<VirtualMachine>();
 
@@ -549,7 +549,7 @@ public abstract class Placement {
                             socketBlade.getVirtualMachineCoreOccupancy()
                                     .clear();
                         }
-                    }
+                    //}
                 	}
                 }
             }
